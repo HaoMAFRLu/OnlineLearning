@@ -2,7 +2,7 @@
 """
 import torch.nn.init as init
 import torch.nn
-from network.CNN import CNN_SEQ, SimplifiedResNet, CustomResNet18, TransformerModel
+from network.CNN import CNN_WIN, FCN
 from network.ResNeXt import ResNeXt, Bottleneck
 from custom_loss import CustomLoss
 import torch.optim.lr_scheduler as lr_scheduler
@@ -65,15 +65,14 @@ class NETWORK_CNN():
     def _get_model(PARAMS) -> torch.nn:
         """Create the neural network
         """
-        return CNN_SEQ(in_channel=PARAMS['channel'],
-                       height=PARAMS['height'],
-                       width=PARAMS['width'],
-                       filter_size=PARAMS['filter_size'],
-                       output_dim=PARAMS['output_dim'])
-        # return SimplifiedResNet()
-        # return CustomResNet18()
-        # return ResNeXt(Bottleneck, [2, 2, 2, 2], cardinality=8, num_classes=550)
-
+        # return CNN_WIN(in_channel=PARAMS['channel'],
+        #                height=PARAMS['hl']+PARAMS['hr']+1,
+        #                width=PARAMS['width'],
+        #                filter_size=PARAMS['filter_size'],
+        #                output_dim=1)
+        return FCN(input_size=PARAMS['hl']+PARAMS['hr']+1,
+                   hidden_size=40,
+                   output_size=1)
 
     @staticmethod
     def count_parameters(model: torch.nn) -> int:

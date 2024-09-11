@@ -8,8 +8,6 @@ import torch
 from mytypes import Array, Array2D
 import utils as fcs
 
-
-
 class KalmanFilter():
     """
     """

@@ -1,14 +1,4 @@
 """Test for online training
-model id: 20240813_105549 -> hidden dim = 5 -> tiny
-model id: 20240802_141501 -> hidden dim = 17 -> small
-model id: 20240813_234753 -> hidden dim = 33 -> small_pro
-model id: 20240809_145528 -> hidden dim = 55 -> small_plus
-model id: 20240812_133404 -> hidden dim = 64 -> medium_minus
-model id: 20240716_193445 -> hidden dim = 65 -> medium -> work well
-model id  20240812_093914 -> hidden dim = 66 -> medium_tiny
-model id: 20240809_122329 -> hidden dim = 81 -> medium_pro
-model id: 20240808_095020 -> hidden dim = 129 -> medium_plus
-model id: 20240805_132954 -> hidden dim = 551 -> large
 """
 import os, sys
 import torch
@@ -27,12 +17,9 @@ def test():
     random.seed(9527)
     torch.manual_seed(9527)
 
-    online_learning = OnlineLearning(mode='svd', 
-                                     rolling=1, 
-                                     location='local')
-    online_learning.online_learning(6000,
-                                    is_shift_dis=True, 
-                                    is_scratch=True)
+    online_learning = OnlineLearning(mode='newton', 
+                                     alpha=0.1,epsilon=1.0,eta=10)
+    online_learning.online_learning(6000, is_shift_dis=True)
 
 if __name__ == '__main__':
     test()

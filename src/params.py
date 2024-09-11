@@ -17,7 +17,7 @@ class SIM_PARAMS:
     SimulationMode: str
 
 @dataclass
-class OFFLINE_DATA_PARAMS:
+class DATA_PARAMS:
     """The hyperparameters for genearating 
     offline training data
     """
@@ -26,6 +26,9 @@ class OFFLINE_DATA_PARAMS:
     is_centerization: bool
     input_scale: float
     output_scale: float
+    hl: int
+    hr: int
+    is_pretrained: bool
     k: float
     batch_size: int
     input_name: str
@@ -33,21 +36,6 @@ class OFFLINE_DATA_PARAMS:
     channel: int
     height: int
     width: int
-
-# @dataclass
-# class ONLINE_DATA_PARAMS:
-#     """The hyperparameters for generating online data processor
-#     """
-#     data_format: str
-#     is_normalization: bool
-#     is_centerization: bool
-#     input_scale: float
-#     output_scale: float
-#     input_name: str
-#     output_name: str
-#     channel: int
-#     height: int
-#     width: int
 
 @dataclass
 class NN_PARAMS:
@@ -59,6 +47,8 @@ class NN_PARAMS:
     lambda_regression: float
     learning_rate: float
     weight_decay: float
+    hl: int
+    hr: int
     channel: int
     height: int
     width: int
@@ -86,11 +76,11 @@ class KF_PARAMS:
     dim: int
 
 dataclass_map = {
-    "SIM_PARAMS":          SIM_PARAMS,
-    "OFFLINE_DATA_PARAMS": OFFLINE_DATA_PARAMS,
-    "NN_PARAMS":           NN_PARAMS,
-    "VISUAL_PARAMS":       VISUAL_PARAMS,
-    "KF_PARAMS":           KF_PARAMS
+    "SIM_PARAMS":    SIM_PARAMS,
+    "DATA_PARAMS":   DATA_PARAMS,
+    "NN_PARAMS":     NN_PARAMS,
+    "VISUAL_PARAMS": VISUAL_PARAMS,
+    "KF_PARAMS":     KF_PARAMS
 }
 
 class PARAMS_GENERATOR():

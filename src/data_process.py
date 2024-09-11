@@ -25,15 +25,170 @@ class DataWin():
         self.channel = PARAMS['channel']
         self.height = PARAMS['height']
         self.width = PARAMS['width']
-        self.h1 = PARAMS['h1']
-        self.h2 = PARAMS['h2']
-
-        self.l = self.h1 + self.h2 + 1
+        self.hr = PARAMS['hr']
+        self.hl = PARAMS['hl']
         self.is_normalization = PARAMS['is_normalization']
         self.is_centerization = PARAMS['is_centerization']
         self.input_scale = PARAMS['input_scale']
         self.output_scale = PARAMS['output_scale']
+
+        self.l = self.hr + self.hl + 1
+    
+    def preprocess_data(self, data: List[Array], **kwargs) -> List[Array]:
+        """Do nothing
+        """
+        return data
+    
+    def inverse_preprocess(self, data: List[Array], **kwargs) -> List[Array]:
+        """Do nothing
+        """
+        return data
+
+    def generate_data(self, mode: str, **kwargs: Any):
+        """Generate data: 
+        offline: input_train, output_train, input_eval, output_eval
+        online: just input
+
+        parameters:
+        -----------
+        mode: offline or online
+        """
+        if mode == 'offline':
+            return self.generate_offline_data(kwargs['inputs'], 
+                                              kwargs['outputs'],
+                                              kwargs['SPLIT_IDX'])
+        elif mode == 'online':
+            return self.generate_online_data(kwargs['inputs'],
+                                             kwargs['norm_params'])
+
+    @staticmethod
+    def inverse_CNS(data: List[Array], preprocess: str, 
+                    **kwargs: float) -> List[Array]:
+        """inverse [C]enterize/[N]ormalize/[S]calize the input data
+        """
+        def _inverse_CNS(_data):
+            if preprocess == 'C':
+                return _data + kwargs['mean']
+            elif preprocess == 'N':
+                return (_data + 1) * (kwargs['max_value']-kwargs['min_value'])/2 + kwargs['min_value']
+            elif preprocess == 'S':
+                return _data/kwargs['scale']
         
+        if isinstance(data, list):
+            num = len(data)
+            processed_data = [None]*num
+            for i in range(num):
+                processed_data[i] = _inverse_CNS(data[i])
+        elif isinstance(data, np.ndarray):
+            processed_data = _inverse_CNS(data)
+        else:
+            raise ValueError("Unsupported data type. Expected list or numpy array.")
+        return processed_data
+    
+    def inverse_online_data(self, scale_outputs: Array, norm_params: dict) -> Array:
+        """Inverse the normalization process
+        """
+        norm_outputs = self.inverse_CNS(scale_outputs, 'S', scale=norm_params['output_scale'])
+
+        if self.is_normalization is True:
+            center_outputs = self.inverse_CNS(norm_outputs, 'N', 
+                                      min_value=norm_params['output_min'], 
+                                      max_value=norm_params['output_max']) 
+        else:
+            center_outputs = norm_outputs.copy()
+
+        if self.is_centerization is True:
+            outputs = self.inverse_CNS(center_outputs, 'C', mean=norm_params['output_mean'])
+        else:
+            outputs = center_outputs.copy()
+
+        return outputs
+
+    @staticmethod
+    def CNS(data: List[Array], preprocess: str, 
+            **kwargs: float) -> List[Array]:
+        """[C]enterize/[N]ormalize/[S]calize the input data
+        """
+        def _CNS(_data):
+            if preprocess == 'C':
+                return _data - kwargs['mean']
+            elif preprocess == 'N':
+                return 2*(_data-kwargs['min_value'])/(kwargs['max_value']-kwargs['min_value']) - 1
+            elif preprocess == 'S':
+                return _data*kwargs['scale']
+        
+        if isinstance(data, list):
+            num = len(data)
+            processed_data = [None]*num
+            for i in range(num):
+                processed_data[i] = _CNS(data[i])
+        elif isinstance(data, np.ndarray):
+            processed_data = _CNS(data)
+        else:
+            raise ValueError("Unsupported data type. Expected list or numpy array.")
+        return processed_data
+
+    def generate_online_data(self, inputs: Array, 
+                             norm_params: dict) -> Array:
+        """Genearate data for online training
+        """
+        if self.is_centerization is True:
+            center_inputs = self.CNS(inputs, 'C', mean=norm_params['input_mean'])
+        else:
+            center_inputs = inputs.copy()
+        
+        if self.is_normalization is True:
+            norm_inputs = self.CNS(center_inputs, 'N', 
+                                   min_value=norm_params['input_min'], 
+                                   max_value=norm_params['input_max']) 
+        else:
+            norm_inputs = center_inputs.copy()     
+
+        scale_inputs = self.CNS(norm_inputs, 'S', scale=norm_params['input_scale'])
+
+        slice_inputs = self.get_slice_data(scale_inputs)
+        inputs_tensor = self.get_tensor_data(slice_inputs)
+        return inputs_tensor
+    
+    @staticmethod
+    def get_padding_data(data: Array, hl: int, 
+                         hr: int, padding: float=0.0) -> Array:
+        """Add padding to the orignal data
+
+        parameters:
+        -----------
+        data: the original array
+        hl: length of the left side
+        hr: length of the right side
+        padding: the value of the padding
+        """
+        return np.pad(data.flatten(), pad_width=(hl, hr), mode='constant', constant_values=padding)
+        
+    def get_slice_data(self, data: Array) -> List[Array]:
+        """Convert the original data into slice data
+        """
+        slice_data = []
+        aug_data = self.get_padding_data(data, hl=self.hl, hr=self.hr)
+        for i in range(self.hl, self.hl+len(data.flatten())):
+            slice_data.append(aug_data[i-self.hl : i+1+self.hr].copy())
+        return slice_data
+
+    def get_tensor_data(self, data: List[Array]) -> List[torch.tensor]:
+        """Convert data to tensor
+        
+        parameters:
+        -----------
+        data: the list of array
+
+        returns:
+        -------
+        tensor_list: a list of tensors, which are in the shape of 1 x channel x height x width
+        """
+        if isinstance(data, list):
+            tensor_list = [torch.tensor(arr, device=self.device).view(1, self.channel, self.l, self.width) for arr in data]
+        elif isinstance(data, np.ndarray):
+            tensor_list = torch.tensor(data, device=self.device).view(1, self.channel, self.l, self.width)
+        return tensor_list
 
 class DataSeq():
     """Generate sequential inputs and outputs
@@ -306,19 +461,35 @@ class DataProcess():
         self.root = fcs.get_parent_path(lvl=0)
         self.mode = mode
         self.data_format = PARAMS['data_format']
-        
+        self.is_pretrained = PARAMS['is_pretrained']
+        self.PARAMS = PARAMS
+
+        self.get_norm_params()
+        self.SPLIT_IDX = None
+        self.initialization()
+
+    def get_norm_params(self) -> None:
+        """Get norm params
+        """
         if self.mode == 'online':
-            path_norm_params = os.path.join(self.root, 'data', 'pretrain_model', 'norm_params')
-            with open(path_norm_params, 'rb') as file:
-                _data = pickle.load(file)
-                self.norm_params = _data["norm_params"]
+            if self.is_pretrained is True:
+                path_norm_params = os.path.join(self.root, 'data', 'pretrain_model', 'norm_params')
+                with open(path_norm_params, 'rb') as file:
+                    _data = pickle.load(file)
+                    self.norm_params = _data["norm_params"]
+            elif self.is_pretrained is False:
+                self.norm_params = {
+                    'output_max': None,
+                    'output_min': None,
+                    'output_mean': None,
+                    'output_scale': self.PARAMS['output_scale'],
+                    'input_max': None,
+                    'input_min': None,
+                    'input_mean': None,
+                    'input_scale': self.PARAMS['input_scale']
+                }
         else:
             self.norm_params = None
-
-        self.SPLIT_IDX = None
-
-        self.PARAMS = PARAMS
-        self.initialization()
 
     @staticmethod
     def select_idx(idx: list, num: int) -> list:
@@ -471,10 +642,8 @@ class DataProcess():
             
         elif self.mode == 'online':
             preprocess_inputs = self._DATA_PROCESS.preprocess_data(kwargs['raw_inputs'], target='input')
-            # if self.norm_params is None:
-            #     self.norm_params = self.load_norm_params(kwargs['root'])
             data = self._DATA_PROCESS.generate_data('online', inputs=preprocess_inputs,
-                                                                 norm_params=self.norm_params)
+                                                    norm_params=self.norm_params)
             return data
         
         else:

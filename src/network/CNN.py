@@ -5,6 +5,77 @@ import torch
 import torchvision.models as models
 import math
 
+class CNN_WIN(nn.Module):
+    def __init__(self, in_channel: int, height: int,
+                 width: int, filter_size: int, output_dim: int) -> None:
+        """Create the CNN with sequential inputs and outputs
+        """
+        super().__init__()
+        l = height
+        padding = math.floor(filter_size/2)
+        self.conv1 = nn.Sequential(nn.Conv2d(in_channels=in_channel,
+                                             out_channels=4*in_channel,
+                                             kernel_size=filter_size,
+                                             stride=(1, 1),
+                                             padding=(0, padding),
+                                             bias=True),
+                                    nn.ReLU()
+                                  )
+        l = int((l+2*padding - filter_size)/1 + 1)
+
+        self.avg_pool1 = nn.MaxPool2d(kernel_size=(3, 1), stride=(3, 1))
+        self.bn1 = nn.BatchNorm2d(num_features=4*in_channel)
+        
+        self.conv2 = nn.Sequential(nn.Conv2d(in_channels=4*in_channel,
+                                             out_channels=8*in_channel,
+                                             kernel_size=filter_size,
+                                             stride=(1, 1),
+                                             padding=(0, padding),
+                                             bias=True),
+                                    nn.ReLU()
+                                   )
+        self.avg_pool2 = nn.MaxPool2d(kernel_size=(3, 1), stride=(3, 1))
+        self.bn2 = nn.BatchNorm2d(num_features=8*in_channel)
+        l = int((l - filter_size)/1 + 1)
+
+        self.conv3 = nn.Sequential(nn.Conv2d(in_channels=8*in_channel,
+                                             out_channels=16*in_channel,
+                                             kernel_size=filter_size,
+                                             stride=(1, 1),
+                                             padding=(0, padding),
+                                             bias=True),
+                                    nn.ReLU()
+                                   )
+        self.avg_pool3 = nn.AvgPool2d(kernel_size=(3, 1), stride=(3, 1))
+        self.bn3 = nn.BatchNorm2d(num_features=16*in_channel)
+        l = int((l - filter_size)/1 + 1)
+
+        self.fc = nn.Sequential(nn.Linear(16*in_channel*l, 128, bias=True) ,  
+                                nn.ReLU(),           
+                                nn.Linear(128, 64, bias=True),
+                                nn.ReLU(),
+                                nn.Linear(64, output_dim, bias=True),
+                                )
+    
+    def forward(self, inputs):
+        preds = None
+        out = self.conv1(inputs)
+        out = self.avg_pool1(out)
+        out = self.bn1(out)
+
+        out = self.conv2(out)
+        out = self.avg_pool2(out)
+        out = self.bn2(out)
+
+        out = self.conv3(out)
+        out = self.avg_pool3(out)
+        out = self.bn3(out)
+
+        batch_size, channels, height, width = out.shape 
+        out = out.view(-1, channels*height*width)
+        preds = self.fc(out)
+        return preds.float()
+
 class CNN_SEQ(nn.Module):
     def __init__(self, in_channel: int, height: int,
                  width: int, filter_size: int, output_dim: int) -> None:
@@ -170,3 +241,16 @@ class TransformerModel(nn.Module):
         out = self.fc_out(out)
         return out
 
+class FCN(nn.Module):
+    def __init__(self, input_size, hidden_size, output_size):
+        super(FCN, self).__init__()
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.fc2 = nn.Linear(hidden_size, hidden_size)
+        self.fc3 = nn.Linear(hidden_size, output_size)
+    
+    def forward(self, x):
+        x = x.squeeze()
+        x = torch.relu(self.fc1(x))
+        x = torch.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
