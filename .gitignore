@@ -1,0 +1,39 @@
+# Ignore the big files
+data/
+
+# Ignore the job submisssion
+test/job.sub
+
+# Ignore the virtual environment directory
+myenv/
+
+# Ignore the figures
+figure/
+
+# Ignore the ILC training data
+data/ilc/
+
+# Ignore Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Ignore VSCode settings
+.vscode/
+
+# Ignore environment variables files
+.env
+
+# Ignore macOS specific files
+.DS_Store
+
+slprj/
+
+# Ignore the tikz plots
+tikz/
+
+# Ignore the papers
+literature review
