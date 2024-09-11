@@ -19,14 +19,13 @@ def read_marker(file):
     with open(file, 'rb') as file:
         yref = pickle.load(file)
         yout = pickle.load(file)
-        d = pickle.load(file)
         u = pickle.load(file)
         loss = pickle.load(file)
-    return yref, yout, d, u, loss
+    return yref, yout, u, loss
 
 def save_variable_marker(path, folder):
     subfolder = 'loss_marker'
-    variables = ['yref', 'yout', 'd', 'u', 'loss']
+    variables = ['yref', 'yout', 'u', 'loss']
     path_folder = os.path.join(path, folder, subfolder)
 
     for var in variables:
@@ -63,7 +62,7 @@ def read_data(file):
 
 def save_variable_data(path, folder):
     subfolder = 'data'
-    variables = ['hidden_states', 'u', 'yref', 'd', 'yout', 'loss', 'gradient']
+    variables = ['u', 'yref', 'yout', 'loss', 'gradient']
     is_exist = [1] * len(variables)
 
     path_folder = os.path.join(path, folder, subfolder)
@@ -109,7 +108,7 @@ if __name__ == '__main__':
     root = fcs.get_parent_path(lvl=1)
     folder1 = 'test'
     path = os.path.join(root, 'data', folder1)
-    folders = ['20240906_144508']
+    folders = ['20240911_171704']
 
     if len(folders) == 0:
         folders = [dir for dir in os.listdir(path) if os.path.isdir(os.path.join(path, dir))]

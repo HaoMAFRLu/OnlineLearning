@@ -398,7 +398,8 @@ class OnlineLearning():
                                u=u,
                                yref=yref,
                                yout=yout,
-                               loss=loss)
+                               loss=loss,
+                               gradient=self.online_optimizer.gradient)
                 
             if (i+1) % self.nr_interval == 0:
                 self.save_checkpoint(i+1)
