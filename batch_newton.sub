@@ -1,9 +1,9 @@
 executable = /lustre/home/hma2/projects/OnlineLearning/myenv/bin/python
 arguments = -u test/cluster_newton.py --alpha $(arg1) --epsilon $(arg2) --eta $(arg3)
-error  = newton_jobs/task$(Process).err
-output = newton_jobs/task$(Process).out
-log    = newton_jobs/task$(Process).log
+error  = newton_jobs2/task$(Process).err
+output = newton_jobs2/task$(Process).out
+log    = newton_jobs2/task$(Process).log
 request_gpus = 1
 request_memory = 65536
 request_cpus = 1
-queue arg1 arg2 arg3 from params_newton.txt
+queue arg1 arg2 arg3 from params_newton2.txt

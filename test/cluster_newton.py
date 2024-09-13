@@ -23,7 +23,7 @@ def test():
     folder_name = str(args.alpha)+'_'+str(args.epsilon)+'_'+str(args.eta)
 
     online_learning = OnlineLearning(mode='newton',
-                                     root_name='newton_wo_shift',
+                                     root_name='newton_wo_shift2',
                                      folder_name=folder_name,
                                      alpha=args.alpha,epsilon=args.epsilon,eta=args.eta)
     
