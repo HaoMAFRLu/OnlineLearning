@@ -43,35 +43,18 @@ def plot_tikz(trajs_data, trajs_marker, trajs_martingale, path_save,
 
 def average(lst):
     return sum(lst) / len(lst)
-
-def _get_martingale(data, mode, rolling):
-    num = len(data)
-    rolling_list = []
-    martingale_list = []
-    for i in range(num):
-        rolling_list.append(data[i])
-
-        if mode == 'rolling':
-            if len(rolling_list) > rolling:
-                rolling_list.pop(0)
-        
-        sum_value = sum(rolling_list)
-        martingale_list.append(np.linalg.norm(sum_value/len(rolling_list)))
-    return martingale_list
-
-def get_martingale(data_list, mode, rolling):
-    num = len(data_list)
-    martingale_list = []
-    for i in range(num):
-        martingale_list.append(_get_martingale(data_list[i], mode, rolling))
-    return martingale_list
     
 if __name__ == '__main__':
-    folder1s = ['martingale_test2']
-    folders = ['1.0_0.1_0.1']
-
+    folder1s = ['test']
+    folders = []
+    
     root = fcs.get_parent_path(lvl=1)
     path = os.path.join(root, 'data')
+
+    if len(folders) == 0:
+        _path = os.path.join(path, 'test')
+        folders = [dir for dir in os.listdir(_path) if os.path.isdir(os.path.join(_path, dir))]
+        folder1s = folder1s * len(folders)
 
     data_loss = []
     marker_loss = []
@@ -101,7 +84,7 @@ if __name__ == '__main__':
         else:
             print('No file!')
 
-    martingale_list = get_martingale(gradient_list, mode='rolling', rolling=100)
+    martingale_list = fcs.get_martingale(gradient_list, mode='rolling', rolling=100)
     path_fig = os.path.join(root, 'figure', 'tikz', 'martingale_gd_shift.tex')
     plot_tikz(data_loss, marker_loss, martingale_list, path_fig, if_data=True, if_marker=True, if_martingale=True)
 

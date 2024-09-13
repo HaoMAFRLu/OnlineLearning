@@ -165,3 +165,27 @@ def diagonal_concatenate(A, B, max_size):
     
     return result
 
+def _get_martingale(data, mode, rolling):
+    num = len(data)
+    rolling_list = []
+    martingale_list = []
+    for i in range(num):
+        rolling_list.append(data[i].flatten())
+
+        if mode == 'rolling':
+            if len(rolling_list) > rolling:
+                rolling_list.pop(0)
+        
+        sum_value = sum(rolling_list)
+        martingale_list.append(np.linalg.norm(sum_value)/len(rolling_list))
+    return martingale_list
+
+def get_martingale(data_list, mode, rolling):
+    if isinstance(data_list[0], list):
+        num = len(data_list)
+        martingale_list = []
+        for i in range(num):
+            martingale_list.append(_get_martingale(data_list[i], mode, rolling))
+    elif isinstance(data_list[0], np.ndarray):
+        martingale_list = _get_martingale(data_list, mode, rolling)
+    return martingale_list

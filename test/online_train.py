@@ -17,8 +17,9 @@ def test():
     random.seed(9527)
     torch.manual_seed(9527)
 
-    online_learning = OnlineLearning(mode='newton', 
-                                     alpha=0.1,epsilon=1.0,eta=10)
+    online_learning = OnlineLearning(mode='newton',
+                                     root_name='newton_w_shift', 
+                                     alpha=0.1,epsilon=1.0,eta=0.05)
     online_learning.online_learning(6000, is_shift_dis=True)
 
 if __name__ == '__main__':

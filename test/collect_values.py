@@ -108,7 +108,7 @@ if __name__ == '__main__':
     root = fcs.get_parent_path(lvl=1)
     folder1 = 'test'
     path = os.path.join(root, 'data', folder1)
-    folders = ['20240911_171704']
+    folders = ['20240912_213858']
 
     if len(folders) == 0:
         folders = [dir for dir in os.listdir(path) if os.path.isdir(os.path.join(path, dir))]

@@ -1,4 +1,4 @@
-"""Test for online training
+"""Online learning with newton method on the cluster
 """
 import os, sys
 import torch
@@ -11,9 +11,6 @@ from online_learning import OnlineLearning
 import utils as fcs
 
 def test():
-    root = fcs.get_parent_path(lvl=0)
-    path = os.path.join(root, 'config.json')
-
     random.seed(9527)
     torch.manual_seed(9527)
 
@@ -26,10 +23,11 @@ def test():
     folder_name = str(args.alpha)+'_'+str(args.epsilon)+'_'+str(args.eta)
 
     online_learning = OnlineLearning(mode='newton',
+                                     root_name='newton_wo_shift',
                                      folder_name=folder_name,
                                      alpha=args.alpha,epsilon=args.epsilon,eta=args.eta)
     
-    online_learning.online_learning(6000, is_shift_dis=True)
+    online_learning.online_learning(6000, is_shift_dis=False)
 
 if __name__ == '__main__':
     test()

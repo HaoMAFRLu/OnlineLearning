@@ -13,8 +13,8 @@ def list_files(directory):
 def test():
     is_save = True
 
-    root = "/home/hao/Desktop/MPI/Online_Convex_Optimization/OnlineILC/data/online_gradient_shift_distribution"
-    file = "1.0_0.1_0.1"
+    root = "/home/hao/Desktop/MPI/Online_Convex_Optimization/OnlineLearning/data/test"
+    file = "1.0_0.5_0.5"
     path = os.path.join(root, file)
     path_data = os.path.join(path, 'data')
     path_figure = os.path.join(path, 'figure')
@@ -34,7 +34,6 @@ def test():
         with open(path_marker_file, 'rb') as file:
             yref = pickle.load(file)
             yout = pickle.load(file)
-            d = pickle.load(file)
             u = pickle.load(file)
             loss = pickle.load(file)
         loss_list.append(loss)
@@ -50,9 +49,10 @@ def test():
         fcs.set_axes_format(ax, r'Time index', r'Input')
         ax.plot(u, linewidth=1.0, linestyle='-')
 
-        ax = axs[2]
-        fcs.set_axes_format(ax, r'Time index', r'disturbance')
-        ax.plot(d, linewidth=1.0, linestyle='-')
+        # ax = axs[2]
+        # fcs.set_axes_format(ax, r'Time index', r'disturbance')
+        # ax.plot(d, linewidth=1.0, linestyle='-')
+
         if is_save is True:
             plt.savefig(os.path.join(path_marker_fig, str(i)+'.pdf'))
             plt.close()
@@ -78,7 +78,7 @@ def test():
             data = pickle.load(file)
         
         yout = data["yout"].flatten()
-        d = data["d"].flatten()
+        # d = data["d"].flatten()
         yref = data["yref"].flatten()[1:]
         u = data["u"].flatten()
         # s = data["hidden_states"].flatten()
@@ -99,9 +99,9 @@ def test():
             fcs.set_axes_format(ax, r'Time index', r'Input')
             ax.plot(u, linewidth=1.0, linestyle='-')
 
-            ax = axs[2]
-            fcs.set_axes_format(ax, r'Time index', r'disturbance')
-            ax.plot(d, linewidth=1.0, linestyle='-')
+            # ax = axs[2]
+            # fcs.set_axes_format(ax, r'Time index', r'disturbance')
+            # ax.plot(d, linewidth=1.0, linestyle='-')
 
             # ax = axs[3]
             # fcs.set_axes_format(ax, r'Index', r'Hidden states')

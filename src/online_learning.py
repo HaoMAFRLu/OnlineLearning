@@ -31,6 +31,7 @@ class OnlineLearning():
                  nr_shift_dis: int=3000,
                  nr_data_interval: int=1,
                  nr_marker_interval: int=20,
+                 root_name: str='test',
                  folder_name: str=None,
                  alpha: float=None,
                  epsilon: float=None,
@@ -53,7 +54,7 @@ class OnlineLearning():
             current_time = datetime.now()
             folder_name = current_time.strftime('%Y%m%d_%H%M%S')
         
-        self.path_model = os.path.join(parent, 'data', 'test', folder_name)
+        self.path_model = os.path.join(parent, 'data', root_name, folder_name)
         self.path_data = os.path.join(self.path_model, 'data')
 
         fcs.mkdir(self.path_model)

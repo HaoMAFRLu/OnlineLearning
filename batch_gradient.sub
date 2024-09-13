@@ -1,0 +1,9 @@
+executable = /lustre/home/hma2/projects/OnlineLearning/myenv/bin/python
+arguments = -u test/cluster_gradient.py --eta $(arg1)
+error  = gradient_jobs/task$(Process).err
+output = gradient_jobs/task$(Process).out
+log    = gradient_jobs/task$(Process).log
+request_gpus = 1
+request_memory = 65536
+request_cpus = 1
+queue arg1 from params.txt

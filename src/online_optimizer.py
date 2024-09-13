@@ -17,7 +17,8 @@ class OnlineOptimizer():
     B: identified linear model
     """
     def __init__(self, mode: str, B: Array2D,
-                 alpha: float, epsilon: float, eta: float) -> None:
+                 alpha: float, epsilon: float, 
+                 eta: float, rolling: int=100) -> None:
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.mode = mode
         self.B = self.move_to_device(B)
@@ -25,6 +26,8 @@ class OnlineOptimizer():
         self.epsilon = epsilon
         self.eta = eta
         self.nr_iteration = 0
+        self.rolling = rolling
+        self.Lambda_list = []
         self.step_size = StepSize('constant', {'value0': self.eta})
 
     def ini_matrix(self, dim: int) -> None:
@@ -60,12 +63,19 @@ class OnlineOptimizer():
         """
         return torch.matmul(L.t(), L) + alpha*torch.matmul(par_pi_par_omega.t(), par_pi_par_omega) + epsilon*I 
 
+    def update_Lambda(self) -> None:
+        """Update Lambda list
+        """
+        self.L = self.get_L(self.B, self.par_pi_par_omega)
+        self.Lambda_list.append(self.get_Lambda(self.L, self.par_pi_par_omega, self.I, self.alpha, self.epsilon))
+        if len(self.Lambda_list) > self.rolling:
+            self.Lambda_list.pop(0)
+        
     def update_A(self):
         """Update the pseudo Hessian matrix
         """
-        self.L = self.get_L(self.B, self.par_pi_par_omega)
-        self.Lambda = self.get_Lambda(self.L, self.par_pi_par_omega, self.I, self.alpha, self.epsilon)
-        self.A += self.Lambda
+        self.update_Lambda()     
+        self.A = sum(self.Lambda_list)/len(self.Lambda_list)
 
     @staticmethod
     def get_gradient(L: torch.Tensor, 
@@ -74,13 +84,17 @@ class OnlineOptimizer():
         """
         return torch.matmul(L.t(), yout - yref)
 
+    def clear_A(self) -> None:
+        self.A = self.A*0.0
+        self.Lambda_list = []
+
     def _optimize_newton(self) -> None:
         """Optimize the parameters using newton method
         """
         self.update_A()
         self.gradient = self.get_gradient(self.L, self.yref, self.yout)
         self.eta = self.step_size.get_eta(self.nr_iteration)
-        self.omega -= self.eta*torch.matmul(torch.linalg.inv(self.A/self.nr_iteration), self.gradient)
+        self.omega -= self.eta*torch.matmul(torch.linalg.inv(self.A), self.gradient)
 
     def _optimize_gradient(self) -> None:
         """Optimize the parameters using gradient descent method
