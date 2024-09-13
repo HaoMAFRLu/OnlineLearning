@@ -11,9 +11,6 @@ from online_learning import OnlineLearning
 import utils as fcs
 
 def test():
-    root = fcs.get_parent_path(lvl=0)
-    path = os.path.join(root, 'config.json')
-
     random.seed(9527)
     torch.manual_seed(9527)
 

@@ -17,12 +17,13 @@ def delete_lines_and_save_new_file(input_file_path, output_file_path, lines_to_g
         new_file.writelines(new_lines)
 
 def get_lines():
-    l = [19,20,21,24] + list(range(28, 55)) + [59,64,65,66,67,79,82,83,98,104,105,109] + list(range(111, 138)) + [142]
+    # l = [19,20,21,24] + list(range(28, 55)) + [59,64,65,66,67,79,82,83,98,104,105,109] + list(range(111, 138)) + [142]
+    l = [31] + list(range(38, 47)) + list(range(48, 69))
     return l
 
 def main():
-    input_file = 'params_newton.txt'
-    output_file = 'params_newton2.txt'
+    input_file = 'params_newton2.txt'
+    output_file = 'params_newton3.txt'
     root = fcs.get_parent_path(lvl=1)
 
     input_file_path = os.path.join(root, input_file)
