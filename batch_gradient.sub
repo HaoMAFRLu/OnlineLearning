@@ -6,4 +6,4 @@ log    = gradient_jobs/task$(Process).log
 request_gpus = 1
 request_memory = 65536
 request_cpus = 1
-queue arg1 from params.txt
+queue arg1 from params_gradient.txt
