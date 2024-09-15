@@ -23,14 +23,14 @@ def test():
     folder_name = str(args.alpha)+'_'+str(args.epsilon)+'_'+str(args.eta)
 
     online_learning = OnlineLearning(mode='newton',
-                                     root_name='newton_w_shift_w_clear_wo_reset',
+                                     root_name='newton_w_shift_w_clear_w_reset',
                                      folder_name=folder_name,
                                      alpha=args.alpha,epsilon=args.epsilon,eta=args.eta)
     
     online_learning.online_learning(6000, 
                                     is_shift_dis=True, 
                                     is_clear=True,
-                                    is_reset=False)
+                                    is_reset=True)
 
 if __name__ == '__main__':
     test()
