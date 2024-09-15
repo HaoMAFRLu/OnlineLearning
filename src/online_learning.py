@@ -28,7 +28,7 @@ class OnlineLearning():
     """
     def __init__(self, mode: str='gradient',
                  nr_interval: int=1000,
-                 nr_shift_dis: int=2,
+                 nr_shift_dis: int=3000,
                  nr_data_interval: int=1,
                  nr_marker_interval: int=20,
                  root_name: str='test',
