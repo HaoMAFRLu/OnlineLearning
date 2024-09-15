@@ -22,15 +22,25 @@ def test():
 
     folder_name = str(args.alpha)+'_'+str(args.epsilon)+'_'+str(args.eta)
 
+    mode = 'newton'
+    is_shift_dis = True
+    is_clear     = False
+    is_reset     = False
+
+    name1 = 'w_shift' if is_shift_dis is True else 'wo_shift'
+    name2 = 'w_clear' if is_clear is True else 'wo_clear'
+    name3 = 'w_reset' if is_reset is True else 'wo_reset'
+    root_name = mode + '_' + name1 + '_' + name2 + '_' + name3
+    
     online_learning = OnlineLearning(mode='newton',
-                                     root_name='newton_w_shift_w_clear_w_reset',
+                                     root_name=root_name,
                                      folder_name=folder_name,
                                      alpha=args.alpha,epsilon=args.epsilon,eta=args.eta)
     
     online_learning.online_learning(6000, 
-                                    is_shift_dis=True, 
-                                    is_clear=True,
-                                    is_reset=True)
+                                    is_shift_dis=is_shift_dis, 
+                                    is_clear=is_clear,
+                                    is_reset=is_reset)
 
 if __name__ == '__main__':
     test()

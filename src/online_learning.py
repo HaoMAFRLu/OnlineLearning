@@ -234,8 +234,6 @@ class OnlineLearning():
         """
         checkpoint = {
             'epoch': idx,
-            'A': self.online_optimizer.A,
-            'Lambda': self.online_optimizer.Lambda_list,
             'model_state_dict': self.model.NN.state_dict(),
             'optimizer_state_dict': self.model.optimizer.state_dict()
         }
