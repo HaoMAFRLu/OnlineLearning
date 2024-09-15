@@ -29,8 +29,8 @@ def test():
     
     online_learning.online_learning(6000, 
                                     is_shift_dis=True, 
-                                    is_clear=False,
-                                    is_reset=False)
+                                    is_clear=True,
+                                    is_reset=True)
 
 if __name__ == '__main__':
     test()
