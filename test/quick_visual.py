@@ -13,9 +13,10 @@ def list_files(directory):
 def test():
     is_save = True
 
-    root = "/home/hao/Desktop/MPI/Online_Convex_Optimization/OnlineLearning/data/test"
-    file = "1.0_0.5_0.5"
-    path = os.path.join(root, file)
+    root = fcs.get_parent_path(lvl=1)
+    folder = "newton_wo_shift"
+    file = "0.01_5.0_25.0"
+    path = os.path.join(root, 'data', folder, file)
     path_data = os.path.join(path, 'data')
     path_figure = os.path.join(path, 'figure')
     fcs.mkdir(path_figure)

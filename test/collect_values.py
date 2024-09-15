@@ -2,7 +2,7 @@
 """
 import os, sys
 import pickle
-
+import torch
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
 import utils as fcs
 
@@ -58,6 +58,7 @@ def save_variable_marker(path, folder):
 def read_data(file):
     with open(file, 'rb') as file:
         data = pickle.load(file)
+        # data = torch.load(file, map_location=torch.device('cpu'))
     return data
 
 def save_variable_data(path, folder):
@@ -106,9 +107,9 @@ def save_variable(path, folder, subfolder):
 
 if __name__ == '__main__':
     root = fcs.get_parent_path(lvl=1)
-    folder1 = 'test'
+    folder1 = 'gradient_wo_shift'
     path = os.path.join(root, 'data', folder1)
-    folders = ['20240912_213858']
+    folders = []
 
     if len(folders) == 0:
         folders = [dir for dir in os.listdir(path) if os.path.isdir(os.path.join(path, dir))]

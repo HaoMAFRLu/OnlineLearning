@@ -177,7 +177,7 @@ def _get_martingale(data, mode, rolling):
                 rolling_list.pop(0)
         
         sum_value = sum(rolling_list)
-        martingale_list.append(np.linalg.norm(sum_value)/len(rolling_list))
+        martingale_list.append(np.linalg.norm(sum_value/len(rolling_list)))
     return martingale_list
 
 def get_martingale(data_list, mode, rolling):

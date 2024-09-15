@@ -15,9 +15,13 @@ def test():
     torch.manual_seed(9527)
 
     online_learning = OnlineLearning(mode='newton',
-                                     root_name='newton_w_shift', 
+                                     root_name='newton_w_shift_wo_clear_wo_reset_test', 
                                      alpha=0.1,epsilon=1.0,eta=0.05)
-    online_learning.online_learning(6000, is_shift_dis=True)
+    
+    online_learning.online_learning(6000, 
+                                    is_shift_dis=True,
+                                    is_clear=False,
+                                    is_reset=False)
 
 if __name__ == '__main__':
     test()

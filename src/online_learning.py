@@ -27,8 +27,8 @@ class OnlineLearning():
     """Classes for online learning
     """
     def __init__(self, mode: str='gradient',
-                 nr_interval: int=500,
-                 nr_shift_dis: int=3000,
+                 nr_interval: int=1000,
+                 nr_shift_dis: int=2,
                  nr_data_interval: int=1,
                  nr_marker_interval: int=20,
                  root_name: str='test',
@@ -234,6 +234,8 @@ class OnlineLearning():
         """
         checkpoint = {
             'epoch': idx,
+            'A': self.online_optimizer.A,
+            'Lambda': self.online_optimizer.Lambda_list,
             'model_state_dict': self.model.NN.state_dict(),
             'optimizer_state_dict': self.model.optimizer.state_dict()
         }
@@ -287,10 +289,16 @@ class OnlineLearning():
         loss = self.get_loss(yout.flatten(), yref[0, 1:].flatten())
         return yout, u, par_pi_par_omega, loss
 
-    def online_learning(self, nr_iterations: int=100, is_shift_dis: bool=False) -> None:
+    def online_learning(self, nr_iterations: int=100, 
+                        is_shift_dis: bool=False,
+                        is_clear: bool=False,
+                        is_reset: bool=False) -> None:
         """
         """        
-        self._online_learning(nr_iterations, is_shift_dis)
+        self._online_learning(nr_iterations, 
+                              is_shift_dis, 
+                              is_clear,
+                              is_reset)
 
     def shift_distribution(self):
         """change the distribution
@@ -357,7 +365,10 @@ class OnlineLearning():
         """
         return torch.cat([p.view(-1) for p in NN.parameters()])
 
-    def _online_learning(self, nr_iterations: int=100, is_shift_dis: bool=False):
+    def _online_learning(self, nr_iterations: int=100, 
+                         is_shift_dis: bool=False,
+                         is_clear: bool=False,
+                         is_reset: bool=False):
         """Online learning using quasi newton method
         """
         self.get_NN_params(self.model.NN)
@@ -372,6 +383,14 @@ class OnlineLearning():
             if (is_shift_dis is True) and (i > self.nr_shift_dis):
                 is_shift_dis = False
                 yref_marker = self.shift_distribution()
+                
+                if is_clear is True:
+                    is_clear = False
+                    self.online_optimizer.clear_A()
+                
+                if is_reset is True:
+                    is_reset = False
+                    self.online_optimizer.import_omega(omega)
 
             self.NN_update(self.model.NN, self.online_optimizer.omega)
 

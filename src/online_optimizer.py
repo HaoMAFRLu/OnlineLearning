@@ -36,6 +36,8 @@ class OnlineOptimizer():
         if self.mode == 'newton':
             self.A = self.move_to_device(np.zeros((dim, dim)))
             self.I = self.move_to_device(np.eye(dim))
+        elif self.mode == 'gradient':
+            self.A = []
 
     def move_to_device(self, data: Array) -> torch.Tensor:
         """Move data to the device
