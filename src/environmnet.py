@@ -31,8 +31,6 @@ class BEAM():
         self.path = os.path.join(self.root, 'model')
         self.model_path = self.get_model_path(self.model_name)
     
-        self.t_stamp = np.array(range(550))*self.dt
-
     def start_engine(self) -> None:
         """Start the simulink engine
         """
@@ -143,10 +141,19 @@ class BEAM():
 
         self.ENGINE.workspace[name] = value
 
+    @staticmethod
+    def get_time_stamp(l, dt: float=0.01):
+        return np.array(range(l))*dt
+
     def one_step(self, u: np.ndarray) -> np.ndarray:
         """Do one step simulation
         """
-        u_in = np.stack((self.t_stamp, u), axis=1)
+        t_stamp = self.get_time_stamp(len(u))
+        self.ENGINE.set_param(self.model_name, 'StopTime', 
+                              str(len(u)*self.dt), nargout=0)
+        
+        u_in = np.stack((t_stamp, u), axis=1)
         self.set_input('u_in', u_in)
+        
         self.run_sim()
         return self.get_output()                

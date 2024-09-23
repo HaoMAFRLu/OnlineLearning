@@ -298,10 +298,10 @@ class OnlineLearning():
                               is_clear,
                               is_reset)
 
-    def shift_distribution(self):
+    def shift_distribution(self, distribution: str='v1'):
         """change the distribution
         """
-        self.traj_initialization('shift')
+        self.traj_initialization(distribution)
         yref_marker, _ = self.traj.get_traj()
         return yref_marker
 

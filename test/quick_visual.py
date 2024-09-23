@@ -14,8 +14,8 @@ def test():
     is_save = True
 
     root = fcs.get_parent_path(lvl=1)
-    folder = "newton_wo_shift"
-    file = "0.01_5.0_25.0"
+    folder = "newton_w_shift_wo_clear_wo_reset"
+    file = "0.01_1.0_5.0"
     path = os.path.join(root, 'data', folder, file)
     path_data = os.path.join(path, 'data')
     path_figure = os.path.join(path, 'figure')

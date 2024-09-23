@@ -24,8 +24,8 @@ def test():
 
     mode = 'newton'
     is_shift_dis = True
-    is_clear     = True
-    is_reset     = True
+    is_clear     = False
+    is_reset     = False
 
     name1 = 'w_shift' if is_shift_dis is True else 'wo_shift'
     name2 = 'w_clear' if is_clear is True else 'wo_clear'

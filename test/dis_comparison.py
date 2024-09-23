@@ -21,9 +21,9 @@ def plot_dis(trajs_1, trajs_2, step=5):
 
     fig, ax = plt.subplots(1, 1, figsize=(15, 10))
     fcs.set_axes_format(ax, r'Index', r'$y$')
-    for i in range(len(trajs_1)):
-        x = [i * step for i in range(len(trajs_1[i][::step]))]
-        ax.plot(x, trajs_1[i][::step], linewidth=1.0, linestyle='-', alpha=0.05, color='gray')
+    # for i in range(len(trajs_1)):
+    #     x = [i * step for i in range(len(trajs_1[i][::step]))]
+    #     ax.plot(x, trajs_1[i][::step], linewidth=1.0, linestyle='-', alpha=0.05, color='gray')
 
     for i in range(len(trajs_2)):
         x = [i * step for i in range(len(trajs_2[i][::step]))]
@@ -63,15 +63,17 @@ def get_contour(trajs):
     return (upper, lower), mean
 
 if __name__ == '__main__':
-    num_traj = 10000
+    num_traj = 5
     trajs_original = get_traj(num_traj, 'original')
     trajs_tmp = get_traj(num_traj, 'tmp')
     trajs_shift = get_traj(num_traj, 'shift')
+    trajs_v1 = get_traj(num_traj, 'v1')
 
-    contour_original, mean_original = get_contour(trajs_original)
-    contour_tmp, mean_tmp = get_contour(trajs_tmp)
-    contour_shift, mean_shift = get_contour(trajs_shift)
+    # contour_original, mean_original = get_contour(trajs_original)
+    # contour_tmp, mean_tmp = get_contour(trajs_tmp)
+    # contour_shift, mean_shift = get_contour(trajs_shift)
+    # contour_v1, mean_v1 = get_contour(trajs_v1)
 
-    plot_area(((contour_original, mean_original), (contour_tmp, mean_tmp), (contour_shift, mean_shift)))
+    # plot_area(((contour_original, mean_original), (contour_v1, mean_v1)))
 
-    # plot_dis(trajs_original, trajs_shift)
+    plot_dis(trajs_original, trajs_v1)
