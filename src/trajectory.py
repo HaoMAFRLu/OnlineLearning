@@ -17,8 +17,6 @@ class TRAJ():
         self.range_y = 0.2
         self.range_v = 2.0
         self.distribution = distribution
-        if self.distribution == 'v1':
-            self.nr_points = random.randint(1, 8)
 
     def get_random_value(self, start: float, 
                          end: float, step: float) -> float:
@@ -116,6 +114,9 @@ class TRAJ():
     def get_traj(self) -> Array:
         """
         """
+        if self.distribution == 'v1':
+            self.nr_points = random.randint(1, 8)
+
         t = self.get_t()
         y = self.get_y()
         v = self.get_v()

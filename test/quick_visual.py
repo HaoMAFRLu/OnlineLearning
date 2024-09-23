@@ -14,7 +14,7 @@ def test():
     is_save = True
 
     root = fcs.get_parent_path(lvl=1)
-    folder = "newton_w_shift_wo_clear_wo_reset"
+    folder = "newton_w_shift_wo_clear_wo_reset2"
     file = "0.01_1.0_5.0"
     path = os.path.join(root, 'data', folder, file)
     path_data = os.path.join(path, 'data')
@@ -88,7 +88,7 @@ def test():
         
         # s_list.append(s)
 
-        if i%50 == 0:
+        if i%30 == 0:
             fig, axs = plt.subplots(4, 1, figsize=(20, 40))
             ax = axs[0]
             fcs.set_axes_format(ax, r'Time index', r'Displacement')

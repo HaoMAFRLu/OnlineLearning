@@ -107,7 +107,7 @@ def save_variable(path, folder, subfolder):
 
 if __name__ == '__main__':
     root = fcs.get_parent_path(lvl=1)
-    folder1 = 'newton_w_shift_wo_clear_w_reset'
+    folder1 = 'newton_w_shift_wo_clear_wo_reset2'
     path = os.path.join(root, 'data', folder1)
     folders = []
 
