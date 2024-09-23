@@ -122,10 +122,10 @@ class OnlineLearning():
         with open(path_file, 'rb') as file:
             _data = pickle.load(file)
         
-        self.B = _data[0]
-        self.Bd = _data[1]
-        self.inv_B = np.linalg.inv(self.B)
-        self.pinv_B = np.linalg.pinv(self.B)
+        self.B = _data['B']
+        self.Bd = _data['Bd']
+        # self.inv_B = np.linalg.inv(self.B)
+        # self.pinv_B = np.linalg.pinv(self.B)
     
     def online_optimizer_initialization(self) -> None:
         """Initialize the kalman filter
@@ -163,7 +163,7 @@ class OnlineLearning():
     def get_loss(y1: np.ndarray, y2: np.ndarray) -> float:
         """Calculate the loss
         """
-        return 0.5*np.linalg.norm(y1-y2)
+        return 0.5*np.linalg.norm(y1-y2)/len(y1)
         
     @staticmethod
     def tensor2np(a: torch.tensor) -> Array:
@@ -322,7 +322,7 @@ class OnlineLearning():
         """
         self.nr_marker += 1
         yout, u, _, loss = self._rum_sim(yref, is_gradient=False)
-        self.loss_marker.append(np.round(loss, 4))
+        self.loss_marker.append(np.round(loss, 7))
         fcs.print_info(
         Marker=[str(self.nr_marker)],
         Loss=[self.loss_marker[-6:]])

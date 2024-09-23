@@ -65,18 +65,18 @@ class OnlineOptimizer():
         """
         return torch.matmul(L.t(), L) + alpha*torch.matmul(par_pi_par_omega.t(), par_pi_par_omega) + epsilon*I 
 
-    def update_Lambda(self) -> None:
+    def update_Lambda(self, B: torch.Tensor) -> None:
         """Update Lambda list
         """
-        self.L = self.get_L(self.B, self.par_pi_par_omega)
+        self.L = self.get_L(B, self.par_pi_par_omega)
         self.Lambda_list.append(self.get_Lambda(self.L, self.par_pi_par_omega, self.I, self.alpha, self.epsilon))
         if len(self.Lambda_list) > self.rolling:
             self.Lambda_list.pop(0)
         
-    def update_A(self):
+    def update_A(self, B: torch.Tensor):
         """Update the pseudo Hessian matrix
         """
-        self.update_Lambda()     
+        self.update_Lambda(B)     
         self.A = sum(self.Lambda_list)/len(self.Lambda_list)
 
     @staticmethod
@@ -90,10 +90,16 @@ class OnlineOptimizer():
         self.A = self.A*0.0
         self.Lambda_list = []
 
+    def update_model(self) -> torch.Tensor:
+        l = self.yref.shape[0]
+        return self.B[0:l, 0:l]
+
     def _optimize_newton(self) -> None:
         """Optimize the parameters using newton method
         """
-        self.update_A()
+        B = self.update_model()
+        self.update_A(B)
+        
         self.gradient = self.get_gradient(self.L, self.yref, self.yout)
         self.eta = self.step_size.get_eta(self.nr_iteration)
         self.omega -= self.eta*torch.matmul(torch.linalg.inv(self.A), self.gradient)
@@ -101,7 +107,8 @@ class OnlineOptimizer():
     def _optimize_gradient(self) -> None:
         """Optimize the parameters using gradient descent method
         """
-        self.L = self.get_L(self.B, self.par_pi_par_omega)
+        B = self.update_model()
+        self.L = self.get_L(B, self.par_pi_par_omega)
         self.gradient = self.get_gradient(self.L, self.yref, self.yout)
         self.eta = self.step_size.get_eta(self.nr_iteration)
         self.omega -= self.eta*self.gradient

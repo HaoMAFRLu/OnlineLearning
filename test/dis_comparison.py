@@ -15,7 +15,7 @@ def get_traj(num_traj, distribution):
         trajs.append(traj.flatten())
     return trajs
 
-def plot_dis(trajs_1, trajs_2, step=5):
+def plot_dis(trajs_1, trajs_2, step=1):
     root = fcs.get_parent_path(lvl=1)
     path_save = os.path.join(root, 'figure', 'tikz', 'dis_comparison.tex')
 
@@ -27,7 +27,7 @@ def plot_dis(trajs_1, trajs_2, step=5):
 
     for i in range(len(trajs_2)):
         x = [i * step for i in range(len(trajs_2[i][::step]))]
-        ax.plot(x, trajs_2[i][::step], linewidth=1.0, linestyle='-', alpha=0.05, color='blue')
+        ax.plot(x, trajs_2[i][::step], linewidth=1.0, linestyle='-', alpha=0.5, color='blue')
     # ax.legend(fontsize=14)
     # tp.save(path_save)
     plt.show()
@@ -63,7 +63,7 @@ def get_contour(trajs):
     return (upper, lower), mean
 
 if __name__ == '__main__':
-    num_traj = 5
+    num_traj = 100
     trajs_original = get_traj(num_traj, 'original')
     trajs_tmp = get_traj(num_traj, 'tmp')
     trajs_shift = get_traj(num_traj, 'shift')
