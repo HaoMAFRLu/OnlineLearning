@@ -152,7 +152,7 @@ class DataWin():
     
     @staticmethod
     def get_padding_data(data: Array, hl: int, 
-                         hr: int, padding: float=0.0) -> Array:
+                         hr: int, padding: float=None) -> Array:
         """Add padding to the orignal data
 
         parameters:
@@ -162,7 +162,12 @@ class DataWin():
         hr: length of the right side
         padding: the value of the padding
         """
-        return np.pad(data.flatten(), pad_width=(hl, hr), mode='constant', constant_values=padding)
+        if padding is None:
+            _data = np.pad(data.flatten(), pad_width=(hl, 0), mode='constant', constant_values=0.0)
+            _data = np.pad(_data.flatten(), pad_width=(0, hr), mode='constant', constant_values=data[-1])
+            return _data
+        else:
+            return np.pad(data.flatten(), pad_width=(hl, hr), mode='constant', constant_values=padding)
         
     def get_slice_data(self, data: Array) -> List[Array]:
         """Convert the original data into slice data
