@@ -97,13 +97,9 @@ class OnlineOptimizer():
     def _optimize_newton(self) -> None:
         """Optimize the parameters using newton method
         """
-        if self.is_inner is False:
-            self._B = self.update_model()
-            self.update_A(self._B)
-            self.eta = self.step_size.get_eta(self.nr_iteration)
-        elif self.is_inner is True:
-            self.L = self.get_L(self._B, self.par_pi_par_omega)
-            self.eta = self.step_size.get_eta(self.nr_iteration)/15.0
+        self._B = self.update_model()
+        self.update_A(self._B)
+        self.eta = self.step_size.get_eta(self.nr_iteration)
 
         self.gradient = self.get_gradient(self.L, self.yref, self.yout)        
         self.omega -= self.eta*torch.matmul(torch.linalg.inv(self.A), self.gradient)
@@ -117,15 +113,14 @@ class OnlineOptimizer():
         self.eta = self.step_size.get_eta(self.nr_iteration)
         self.omega -= self.eta*self.gradient
 
-    def optimize(self, yref: Array, yout: Array, is_inner: bool=False) -> Array:
+    def optimize(self, yref: Array, yout: Array) -> Array:
         """Do the online optimization
         """
         self.nr_iteration += 1
 
         self.yref = self.move_to_device(yref.reshape(-1, 1))
         self.yout = self.move_to_device(yout.reshape(-1, 1))
-        
-        self.is_inner = is_inner
+
         if self.mode == 'gradient':
             self._optimize_gradient()
         elif self.mode == 'newton':

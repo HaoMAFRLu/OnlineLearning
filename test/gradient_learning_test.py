@@ -67,7 +67,7 @@ def build_environment(PARAMS: dict) -> environmnet:
     env.initialization()
     return env
 
-def traj_initialization(distribution: str='v1'):
+def traj_initialization(distribution: str='original'):
     """Create the class of reference trajectories
     """
     traj_generator = TRAJ(distribution)
@@ -151,12 +151,16 @@ def test():
     """
     model, env, traj_generator, data_processor = initialization()
     yref, _ = traj_generator.get_traj()
-    yref_noise = add_noise(yref)
-    u_noise = get_u(data_processor, model, yref_noise)
-    u = get_u(data_processor, model, yref)
-    yout_noise = run_sim(env, u_noise)
-    get_plots(yref=yref, yref_noise=yref_noise,
-              yout_noise=yout_noise, u=u, u_noise=u_noise)
+
+    while 1:
+        yref_noise = add_noise(yref)
+        u_noise = get_u(data_processor, model, yref_noise)
+        u = get_u(data_processor, model, yref)
+        yout_noise = run_sim(env, u_noise)
+        get_plots(yref=yref, yref_noise=yref_noise,
+                yout_noise=yout_noise, u=u, u_noise=u_noise)
+        
+        yref = yref_noise
 
 if __name__ == '__main__':
     test()

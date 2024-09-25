@@ -11,6 +11,9 @@ import numba as nb
 from datetime import datetime
 import time
 from scipy.signal import butter, filtfilt, freqz
+import random
+
+random.seed(10086)
 
 import utils as fcs
 from mytypes import Array, Array2D, Array3D
@@ -385,6 +388,9 @@ class OnlineLearning():
         filtered_noise = filtfilt(b, a, noise)
         return y + filtered_noise
 
+    def flip_coin(self):
+        return random.random() < 0.75
+
     def _online_learning(self, nr_iterations: int=100, 
                          is_shift_dis: bool=False,
                          is_clear: bool=False,
@@ -396,6 +402,8 @@ class OnlineLearning():
         self.online_optimizer.ini_matrix(len(omega))
         self.online_optimizer.import_omega(omega)
         yref_marker, path_marker = self.marker_initialization()
+
+        _yref, _ = self.traj.get_traj()
 
         for i in range(nr_iterations):
             tt = time.time()
@@ -417,7 +425,12 @@ class OnlineLearning():
             if i%self.nr_marker_interval == 0:
                 self.run_marker_step(yref_marker, path_marker)
             
-            yref, _ = self.traj.get_traj()
+            if self.flip_coin() is True:
+                yref = self.add_noise(_yref)
+            else:
+                _yref, _ = self.traj.get_traj()
+                yref = _yref.copy()
+
             t1 = time.time()
             yout, u, par_pi_par_omega, loss = self._rum_sim(yref, is_gradient=True)
             tsim = time.time() - t1
@@ -444,15 +457,6 @@ class OnlineLearning():
             if (i+1) % self.nr_interval == 0:
                 self.save_checkpoint(i+1)
 
-            for i_inner in range(10):
-                self.NN_update(self.model.NN, self.online_optimizer.omega)
-                yref_noise = self.add_noise(yref)
-                yout_noise, u_noise, par_pi_par_omega_noise, loss_noise = self._rum_sim(yref_noise, is_gradient=True)
-                self.online_optimizer.import_par_pi_par_omega(par_pi_par_omega_noise)
-                self.online_optimizer.optimize(yref_noise[0, 1:], yout_noise, is_inner=True)
-                fcs.print_info(
-                    Epoch=[str(i+1)+'.'+str(i_inner)],
-                    Loss=[loss_noise])
 
             
 

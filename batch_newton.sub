@@ -1,8 +1,8 @@
 executable = /lustre/home/hma2/projects/OnlineLearning/myenv/bin/python
 arguments = -u test/cluster_newton.py --alpha $(arg1) --epsilon $(arg2) --eta $(arg3)
-error  = wo_clear_wo_reset/task$(Process).err
-output = wo_clear_wo_reset/task$(Process).out
-log    = wo_clear_wo_reset/task$(Process).log
+error  = BFS/task$(Process).err
+output = BFS/task$(Process).out
+log    = BFS/task$(Process).log
 request_gpus = 1
 request_memory = 65536
 request_cpus = 1
