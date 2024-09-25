@@ -18,7 +18,7 @@ class OnlineOptimizer():
     """
     def __init__(self, mode: str, B: Array2D,
                  alpha: float, epsilon: float, 
-                 eta: float, rolling: int=100) -> None:
+                 eta: float, rolling: int=50) -> None:
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.mode = mode
         self.B = self.move_to_device(B)
