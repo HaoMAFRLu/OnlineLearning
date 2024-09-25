@@ -10,6 +10,7 @@ import numpy as np
 import numba as nb
 from datetime import datetime
 import time
+from scipy.signal import butter, filtfilt, freqz
 
 import utils as fcs
 from mytypes import Array, Array2D, Array3D
@@ -363,6 +364,27 @@ class OnlineLearning():
         """
         return torch.cat([p.view(-1) for p in NN.parameters()])
 
+    def butter_lowpass(self, cutoff, fs, order=5):
+        nyq = 0.5 * fs  # 奈奎斯特频率
+        normal_cutoff = cutoff / nyq  # 归一化截止频率
+        b, a = butter(order, normal_cutoff, btype='low', analog=False)
+        return b, a
+
+    def add_noise(self, y, snr_db=1):
+        signal_power = np.mean(y ** 2)
+        noise_power = signal_power / (10 ** (snr_db / 10))
+        noise_std = np.sqrt(noise_power)
+        noise = np.random.normal(0, noise_std, size=y.shape)
+        noise[0, 0] = 0.0
+        noise[0, -51:] = 0.0
+
+        cutoff = 10
+        order = 4
+        fs = 500
+        b, a = self.butter_lowpass(cutoff, fs, order)
+        filtered_noise = filtfilt(b, a, noise)
+        return y + filtered_noise
+
     def _online_learning(self, nr_iterations: int=100, 
                          is_shift_dis: bool=False,
                          is_clear: bool=False,
@@ -410,7 +432,7 @@ class OnlineLearning():
                 AvgLoss=[self.total_loss/(i+1)],
                 Ttotal = [ttotal],
                 Tsim = [tsim])
-
+            
             if (i+1) % self.nr_data_interval == 0:
                 self.save_data(i,
                                u=u,
@@ -421,6 +443,17 @@ class OnlineLearning():
                 
             if (i+1) % self.nr_interval == 0:
                 self.save_checkpoint(i+1)
+
+            for i_inner in range(10):
+                yref_noise = self.add_noise(yref)
+                yout_noise, u_noise, par_pi_par_omega_noise, loss_noise = self._rum_sim(yref_noise, is_gradient=True)
+                self.online_optimizer.import_par_pi_par_omega(par_pi_par_omega_noise)
+                self.online_optimizer.optimize(yref_noise[0, 1:], yout_noise, is_inner=True)
+                fcs.print_info(
+                    Epoch=[str(i+1)+'.'+str(i_inner)],
+                    Loss=[loss_noise])
+
+            
 
     
 

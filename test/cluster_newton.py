@@ -23,7 +23,7 @@ def test():
     folder_name = str(args.alpha)+'_'+str(args.epsilon)+'_'+str(args.eta)
 
     mode = 'newton'
-    is_shift_dis = True
+    is_shift_dis = False
     is_clear     = False
     is_reset     = False
 
@@ -37,7 +37,7 @@ def test():
                                      folder_name=folder_name,
                                      alpha=args.alpha,epsilon=args.epsilon,eta=args.eta)
     
-    online_learning.online_learning(6000, 
+    online_learning.online_learning(1000, 
                                     is_shift_dis=is_shift_dis, 
                                     is_clear=is_clear,
                                     is_reset=is_reset)
