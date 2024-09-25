@@ -1,8 +1,8 @@
 executable = /lustre/home/hma2/projects/OnlineLearning/myenv/bin/python
 arguments = -u test/cluster_newton.py --alpha $(arg1) --epsilon $(arg2) --eta $(arg3)
-error  = DFS/task$(Process).err
-output = DFS/task$(Process).out
-log    = DFS/task$(Process).log
+error  = DFS2/task$(Process).err
+output = DFS2/task$(Process).out
+log    = DFS2/task$(Process).log
 request_gpus = 1
 request_memory = 65536
 request_cpus = 1
