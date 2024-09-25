@@ -100,11 +100,12 @@ class OnlineOptimizer():
         if self.is_inner is False:
             self._B = self.update_model()
             self.update_A(self._B)
+            self.eta = self.step_size.get_eta(self.nr_iteration)
         elif self.is_inner is True:
             self.L = self.get_L(self._B, self.par_pi_par_omega)
+            self.eta = self.step_size.get_eta(self.nr_iteration)/15.0
 
-        self.gradient = self.get_gradient(self.L, self.yref, self.yout)
-        self.eta = self.step_size.get_eta(self.nr_iteration)
+        self.gradient = self.get_gradient(self.L, self.yref, self.yout)        
         self.omega -= self.eta*torch.matmul(torch.linalg.inv(self.A), self.gradient)
 
     def _optimize_gradient(self) -> None:
