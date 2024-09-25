@@ -403,7 +403,7 @@ class OnlineLearning():
         self.online_optimizer.import_omega(omega)
         yref_marker, path_marker = self.marker_initialization()
 
-        _yref, _ = self.traj.get_traj()
+        yref, _ = self.traj.get_traj()
 
         for i in range(nr_iterations):
             tt = time.time()
@@ -426,10 +426,9 @@ class OnlineLearning():
                 self.run_marker_step(yref_marker, path_marker)
             
             if self.flip_coin() is True:
-                yref = self.add_noise(_yref)
+                yref = self.add_noise(yref)
             else:
-                _yref, _ = self.traj.get_traj()
-                yref = _yref.copy()
+                yref, _ = self.traj.get_traj()
 
             t1 = time.time()
             yout, u, par_pi_par_omega, loss = self._rum_sim(yref, is_gradient=True)
