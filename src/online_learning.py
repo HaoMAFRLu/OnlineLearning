@@ -445,6 +445,7 @@ class OnlineLearning():
                 self.save_checkpoint(i+1)
 
             for i_inner in range(10):
+                self.NN_update(self.model.NN, self.online_optimizer.omega)
                 yref_noise = self.add_noise(yref)
                 yout_noise, u_noise, par_pi_par_omega_noise, loss_noise = self._rum_sim(yref_noise, is_gradient=True)
                 self.online_optimizer.import_par_pi_par_omega(par_pi_par_omega_noise)
