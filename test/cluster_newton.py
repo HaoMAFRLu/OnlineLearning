@@ -33,7 +33,7 @@ def test():
     root_name = mode + '_' + name1 + '_' + name2 + '_' + name3
 
     online_learning = OnlineLearning(mode='newton',
-                                     root_name='DFS2',
+                                     root_name='BFS',
                                      folder_name=folder_name,
                                      alpha=args.alpha,epsilon=args.epsilon,eta=args.eta)
     

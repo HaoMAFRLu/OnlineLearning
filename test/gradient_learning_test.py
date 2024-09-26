@@ -63,9 +63,10 @@ def get_params():
 def build_environment(PARAMS: dict) -> environmnet:
     """Initialize the simulation environment
     """
-    env = environmnet.BEAM('Control_System', PARAMS)
-    env.initialization()
-    return env
+    return None
+    # env = environmnet.BEAM('Control_System', PARAMS)
+    # env.initialization()
+    # return env
 
 def traj_initialization(distribution: str='original'):
     """Create the class of reference trajectories
@@ -83,29 +84,6 @@ def initialization():
     traj_generator = traj_initialization()
     data_processor = data_initialization(DATA_PARAMS)
     return model, env, traj_generator, data_processor
-
-def butter_lowpass(cutoff, fs, order=5):
-    nyq = 0.5 * fs  # 奈奎斯特频率
-    normal_cutoff = cutoff / nyq  # 归一化截止频率
-    b, a = butter(order, normal_cutoff, btype='low', analog=False)
-    return b, a
-
-def add_noise(y, snr_db=1):
-    # noise = np.random.normal(0, 0.1, size=y.shape)
-    signal_power = np.mean(y ** 2)
-    noise_power = signal_power / (10 ** (snr_db / 10))
-    noise_std = np.sqrt(noise_power)
-    noise = np.random.normal(0, noise_std, size=y.shape)
-    noise[0, 0] = 0.0
-    noise[0, -51:] = 0.0
-
-    cutoff = 10 # 截止频率（Hz）
-    order = 4
-    fs = 500
-    b, a = butter_lowpass(cutoff, fs, order)
-    filtered_noise = filtfilt(b, a, noise)
-    
-    return y + filtered_noise
 
 def tensor2np(a: torch.tensor):
     """Covnert tensor to numpy
@@ -153,14 +131,13 @@ def test():
     yref, _ = traj_generator.get_traj()
 
     while 1:
-        yref_noise = add_noise(yref)
+        yref, _ = traj_generator.get_traj()
+        yref_noise = fcs.add_noise(yref)
         u_noise = get_u(data_processor, model, yref_noise)
         u = get_u(data_processor, model, yref)
-        yout_noise = run_sim(env, u_noise)
+        # yout_noise = run_sim(env, u_noise)
         get_plots(yref=yref, yref_noise=yref_noise,
-                yout_noise=yout_noise, u=u, u_noise=u_noise)
-        
-        yref = yref_noise
+                yout_noise=yref_noise, u=u, u_noise=u_noise)
 
 if __name__ == '__main__':
     test()

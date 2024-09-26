@@ -14,7 +14,7 @@ def test():
     is_save = True
 
     root = fcs.get_parent_path(lvl=1)
-    folder = "newton_wo_shift"
+    folder = "DFS"
     file = "0.01_1.0_5.0"
     path = os.path.join(root, 'data', folder, file)
     path_data = os.path.join(path, 'data')
@@ -134,8 +134,6 @@ def test():
         plt.close()
     else:
         plt.show()
-
-    
 
 if __name__ == '__main__':
     test()

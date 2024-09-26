@@ -8,6 +8,7 @@ from typing import Any, List, Tuple
 from tabulate import tabulate
 import shutil
 import torch
+from scipy.signal import butter, filtfilt, freqz
 
 from mytypes import Array, Array2D
 
@@ -189,3 +190,25 @@ def get_martingale(data_list, mode, rolling):
     elif isinstance(data_list[0], np.ndarray):
         martingale_list = _get_martingale(data_list, mode, rolling)
     return martingale_list
+
+def butter_lowpass(cutoff, fs, order=5):
+    nyq = 0.5 * fs  # 奈奎斯特频率
+    normal_cutoff = cutoff / nyq  # 归一化截止频率
+    b, a = butter(order, normal_cutoff, btype='low', analog=False)
+    return b, a
+
+def add_noise(y, snr_db=25):
+    signal_power = np.mean(y ** 2)
+    noise_power = signal_power / (10 ** (snr_db / 10))
+    noise_std = np.sqrt(noise_power)
+    noise = np.random.normal(0, noise_std, size=y.shape)
+
+    cutoff = 10 
+    order = 4
+    fs = 500
+    b, a = butter_lowpass(cutoff, fs, order)
+    filtered_noise = filtfilt(b, a, noise)
+
+    filtered_noise[0, 0] = 0.0
+    filtered_noise[0, -51:] = 0.0
+    return y + noise

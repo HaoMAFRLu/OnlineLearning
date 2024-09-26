@@ -367,29 +367,8 @@ class OnlineLearning():
         """
         return torch.cat([p.view(-1) for p in NN.parameters()])
 
-    def butter_lowpass(self, cutoff, fs, order=5):
-        nyq = 0.5 * fs  # 奈奎斯特频率
-        normal_cutoff = cutoff / nyq  # 归一化截止频率
-        b, a = butter(order, normal_cutoff, btype='low', analog=False)
-        return b, a
-
-    def add_noise(self, y, snr_db=1):
-        signal_power = np.mean(y ** 2)
-        noise_power = signal_power / (10 ** (snr_db / 10))
-        noise_std = np.sqrt(noise_power)
-        noise = np.random.normal(0, noise_std, size=y.shape)
-        noise[0, 0] = 0.0
-        noise[0, -51:] = 0.0
-
-        cutoff = 10
-        order = 4
-        fs = 500
-        b, a = self.butter_lowpass(cutoff, fs, order)
-        filtered_noise = filtfilt(b, a, noise)
-        return y + filtered_noise
-
     def flip_coin(self):
-        return random.random() < 0.75
+        return random.random() < 0.9
 
     def _online_learning(self, nr_iterations: int=100, 
                          is_shift_dis: bool=False,
@@ -402,8 +381,6 @@ class OnlineLearning():
         self.online_optimizer.ini_matrix(len(omega))
         self.online_optimizer.import_omega(omega)
         yref_marker, path_marker = self.marker_initialization()
-
-        yref, _ = self.traj.get_traj()
 
         for i in range(nr_iterations):
             tt = time.time()
@@ -425,16 +402,21 @@ class OnlineLearning():
             if i%self.nr_marker_interval == 0:
                 self.run_marker_step(yref_marker, path_marker)
             
-            if self.flip_coin() is True:
-                yref = self.add_noise(yref)
-            else:
+            if i == 0:
                 yref, _ = self.traj.get_traj()
+                _yref = yref.copy()
+            else:
+                if self.flip_coin() is True:
+                    yref = fcs.add_noise(_yref)
+                else:
+                    yref, _ = self.traj.get_traj()
+                    _yref = yref.copy()
 
             t1 = time.time()
             yout, u, par_pi_par_omega, loss = self._rum_sim(yref, is_gradient=True)
             tsim = time.time() - t1
             self.online_optimizer.import_par_pi_par_omega(par_pi_par_omega)
-            self.online_optimizer.optimize(yref[0, 1:], yout)
+            self.online_optimizer.optimize(_yref[0, 1:], yout)
 
             ttotal = time.time() - tt
             self.total_loss += loss
