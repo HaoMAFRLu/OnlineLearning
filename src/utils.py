@@ -197,7 +197,7 @@ def butter_lowpass(cutoff, fs, order=5):
     b, a = butter(order, normal_cutoff, btype='low', analog=False)
     return b, a
 
-def add_noise(y, snr_db=25):
+def add_noise(y, snr_db=20):
     signal_power = np.mean(y ** 2)
     noise_power = signal_power / (10 ** (snr_db / 10))
     noise_std = np.sqrt(noise_power)
@@ -212,3 +212,4 @@ def add_noise(y, snr_db=25):
     filtered_noise[0, 0] = 0.0
     filtered_noise[0, -51:] = 0.0
     return y + noise
+    # return y + filtered_noise

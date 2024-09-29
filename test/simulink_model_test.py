@@ -7,7 +7,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 's
 from params import PARAMS_GENERATOR
 from environmnet import BEAM
 
-
 def get_random_input(T: int, dt: float, 
                      mean: float=0.0, std: float=1.0):
     l = int(T/dt)
@@ -23,7 +22,7 @@ def run_simulink_model():
     params_generator.get_params(PARAMS_LIST)
     # params_generator.PARAMS['SIM_PARAMS']["SimulationMode"] = "accelerator"
 
-    model_name = 'Control_System'
+    model_name = 'control_system_large'
     beam = BEAM(model_name, params_generator.PARAMS['SIM_PARAMS'])
     beam.initialization()
     u_in = get_random_input(5.5, 0.01)

@@ -33,11 +33,11 @@ def test():
     root_name = mode + '_' + name1 + '_' + name2 + '_' + name3
 
     online_learning = OnlineLearning(mode='newton',
-                                     root_name='BFS',
+                                     root_name='switch_dynamics',
                                      folder_name=folder_name,
                                      alpha=args.alpha,epsilon=args.epsilon,eta=args.eta)
     
-    online_learning.online_learning(6000, 
+    online_learning.online_learning(14000, 
                                     is_shift_dis=is_shift_dis, 
                                     is_clear=is_clear,
                                     is_reset=is_reset)

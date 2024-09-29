@@ -88,11 +88,19 @@ class OnlineLearning():
                 params_generator.PARAMS['DATA_PARAMS'],
                 params_generator.PARAMS['NN_PARAMS'])
 
+    def _env_initialization(self, model_name: str, PARAMS: dict):
+        """
+        """
+        env = environmnet.BEAM(model_name, PARAMS)
+        env.initialization()
+        return env
+    
     def env_initialization(self, PARAMS: dict) -> environmnet:
         """Initialize the simulation environment
         """
-        self.env = environmnet.BEAM('Control_System', PARAMS)
-        self.env.initialization()
+        self.envs = [None] * 2
+        self.envs[0] = self._env_initialization('control_system_medium', PARAMS)
+        self.envs[1] = self._env_initialization('control_system_large', PARAMS)
 
     def data_process_initialization(self, PARAMS: dict) -> None:
         """Initialize the data processor
@@ -116,7 +124,8 @@ class OnlineLearning():
     def traj_initialization(self, distribution: str='original') -> None:
         """Create the class of reference trajectories
         """
-        self.traj = TRAJ(distribution)
+        # self.traj = TRAJ(distribution)
+        self.traj = TRAJ('v1')
 
     def load_dynamic_model(self) -> None:
         """Load the dynamic model of the underlying system,
@@ -283,11 +292,12 @@ class OnlineLearning():
         u = self.tensor2np(u_tensor)
         return self.DATA_PROCESS.inverse_output(u), par_pi_par_omega
 
-    def _rum_sim(self, yref: Array2D, is_gradient: bool=False) -> Tuple:
+    def _rum_sim(self, env: environmnet, 
+                 yref: Array2D, is_gradient: bool=False) -> Tuple:
         """
         """
         u, par_pi_par_omega = self.get_u(yref, is_gradient)
-        yout, _ = self.env.one_step(u.flatten())
+        yout, _ = env.one_step(u.flatten())
         loss = self.get_loss(yout.flatten(), yref[0, 1:].flatten())
         return yout, u, par_pi_par_omega, loss
 
@@ -321,11 +331,12 @@ class OnlineLearning():
         fcs.mkdir(path_marker)
         return yref_marker, path_marker
 
-    def run_marker_step(self, yref: Array2D, path: Path) -> None:
+    def run_marker_step(self, env: environmnet,
+                        yref: Array2D, path: Path) -> None:
         """Evaluate the marker trajectory
         """
         self.nr_marker += 1
-        yout, u, _, loss = self._rum_sim(yref, is_gradient=False)
+        yout, u, _, loss = self._rum_sim(env, yref, is_gradient=False)
         self.loss_marker.append(np.round(loss, 7))
         fcs.print_info(
         Marker=[str(self.nr_marker)],
@@ -382,41 +393,41 @@ class OnlineLearning():
         self.online_optimizer.import_omega(omega)
         yref_marker, path_marker = self.marker_initialization()
 
+        model_idx = 0
+        model_switch_idx = [2000, 4000, 6000, 8000, 10000, 12000]
+
         for i in range(nr_iterations):
             tt = time.time()
             
-            if (is_shift_dis is True) and (i > self.nr_shift_dis):
-                is_shift_dis = False
-                yref_marker = self.shift_distribution()
+            # if (is_shift_dis is True) and (i > self.nr_shift_dis):
+            #     is_shift_dis = False
+            #     yref_marker = self.shift_distribution()
                 
-                if is_clear is True:
-                    is_clear = False
-                    self.online_optimizer.clear_A()
+            #     if is_clear is True:
+            #         is_clear = False
+            #         self.online_optimizer.clear_A()
                 
-                if is_reset is True:
-                    is_reset = False
-                    self.online_optimizer.import_omega(omega)
+            #     if is_reset is True:
+            #         is_reset = False
+            #         self.online_optimizer.import_omega(omega)
 
             self.NN_update(self.model.NN, self.online_optimizer.omega)
+            
+            if i in model_switch_idx:
+                model_idx = 1 - model_idx
 
             if i%self.nr_marker_interval == 0:
-                self.run_marker_step(yref_marker, path_marker)
+                self.run_marker_step(self.envs[model_idx], 
+                                     yref_marker, path_marker)
             
-            if i == 0:
-                yref, _ = self.traj.get_traj()
-                _yref = yref.copy()
-            else:
-                if self.flip_coin() is True:
-                    yref = fcs.add_noise(_yref)
-                else:
-                    yref, _ = self.traj.get_traj()
-                    _yref = yref.copy()
-
+            yref, _ = self.traj.get_traj()
+   
             t1 = time.time()
-            yout, u, par_pi_par_omega, loss = self._rum_sim(yref, is_gradient=True)
+            yout, u, par_pi_par_omega, loss = self._rum_sim(self.envs[model_idx], 
+                                                            yref, is_gradient=True)
             tsim = time.time() - t1
             self.online_optimizer.import_par_pi_par_omega(par_pi_par_omega)
-            self.online_optimizer.optimize(_yref[0, 1:], yout)
+            self.online_optimizer.optimize(yref[0, 1:], yout)
 
             ttotal = time.time() - tt
             self.total_loss += loss
@@ -433,7 +444,8 @@ class OnlineLearning():
                                yref=yref,
                                yout=yout,
                                loss=loss,
-                               gradient=self.online_optimizer.gradient)
+                               gradient=self.online_optimizer.gradient,
+                               model_idx=model_idx)
                 
             if (i+1) % self.nr_interval == 0:
                 self.save_checkpoint(i+1)

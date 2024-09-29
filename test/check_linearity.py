@@ -30,15 +30,11 @@ def build_model(PARAMS):
     model.build_network()
     return model
 
-def load_the_model(PARAMS):
+def load_the_model(PARAMS, path):
     """Load the pretrained model
     """
-
     model = build_model(PARAMS)
-    folder = 'newton_w_shift_wo_clear_wo_reset_padding'
-    file = '0.01_1.0_5.0'
-    path_model = os.path.join(root, 'data', folder, file, 'checkpoint_epoch_6000.pth')
-    checkpoint = torch.load(path_model)
+    checkpoint = torch.load(path)
     model.NN.load_state_dict(checkpoint['model_state_dict'])
     return model
 
@@ -50,13 +46,11 @@ def get_params():
     path: path to folder of the config file
     """
     PATH_CONFIG = os.path.join(root, 'src', 'config.json')
-    PARAMS_LIST = ["SIM_PARAMS", 
-                    "DATA_PARAMS", 
+    PARAMS_LIST = ["DATA_PARAMS", 
                     "NN_PARAMS"]
     params_generator = params.PARAMS_GENERATOR(PATH_CONFIG)
     params_generator.get_params(PARAMS_LIST)
-    return (params_generator.PARAMS['SIM_PARAMS'],
-            params_generator.PARAMS['DATA_PARAMS'],
+    return (params_generator.PARAMS['DATA_PARAMS'],
             params_generator.PARAMS['NN_PARAMS'])
 
 
@@ -78,12 +72,10 @@ def data_initialization(PARAMS):
     return data_process.DataProcess('online', PARAMS)
 
 def initialization():
-    SIM_PARAMS, DATA_PARAMS, NN_PARAMS = get_params()
-    model = load_the_model(NN_PARAMS)
-    env = build_environment(SIM_PARAMS)
+    DATA_PARAMS, NN_PARAMS = get_params()
     traj_generator = traj_initialization()
     data_processor = data_initialization(DATA_PARAMS)
-    return model, env, traj_generator, data_processor
+    return NN_PARAMS, traj_generator, data_processor
 
 def tensor2np(a: torch.tensor):
     """Covnert tensor to numpy
@@ -92,11 +84,9 @@ def tensor2np(a: torch.tensor):
 
 def _u_wo_gradient(data_processor, model, y):
     model.NN.eval()
-
     y_processed = data_processor.get_data(raw_inputs=y[0, 1:])
     y_tensor = torch.cat(y_processed, dim=0)
     u_tensor = model.NN(y_tensor.float())
-
     return tensor2np(u_tensor)
 
 def get_matrix(i):
@@ -133,26 +123,30 @@ def get_u(data_processor, model, y, is_gradient):
         Jac = None
     return u, Jac
 
-def run_sim(env, u):
-    yout, _ = env.one_step(u.flatten())
-    return yout
-
-def get_plots(**kwargs):
-    fig, axs = plt.subplots(2, 1, figsize=(20, 20))
-    ax = axs[0]
-    fcs.set_axes_format(ax, r'Time index', r'Displacement')
-    ax.plot(kwargs['yref'].flatten()[1:], linewidth=1.0, linestyle='-', label='yref')
-    ax.plot(kwargs['yref_noise'].flatten()[1:], linewidth=1.0, linestyle='-', label='yref_noise')
-    ax.plot(kwargs['yout_noise'].flatten()[0:], linewidth=1.0, linestyle='-', label='yout_noise')
-    ax.legend(fontsize=14)
-
-    ax = axs[1]
-    fcs.set_axes_format(ax, r'Time index', r'Displacement')
-    ax.plot(kwargs['u'].flatten()[1:], linewidth=1.0, linestyle='-', label='u')
-    ax.plot(kwargs['u_noise'].flatten()[1:], linewidth=1.0, linestyle='-', label='u_noise')
-    ax.legend(fontsize=14)
+def get_plots(dus):
+    num = len(dus)
+    fig, axs = plt.subplots(num, 1, figsize=(20, 20))
+    for i in range(num):
+        du = dus[i]
+        ax = axs[i]
+        u = du[0]
+        u_bar = du[1]
+        fcs.set_axes_format(ax, r'Time index', r'Displacement')
+        ax.plot(u, linewidth=1.0, linestyle='-', label='du')
+        ax.plot(u_bar, linewidth=1.0, linestyle='-', label='du_bar')
+        ax.legend(fontsize=14)
     plt.show()
 
+def check_linearity(data_processor, model, yref, yref_noise):
+    dy = (yref_noise-yref).flatten()
+    u, Jac = get_u(data_processor, model, yref, is_gradient=True)
+    u_noise, _ = get_u(data_processor, model, yref_noise, is_gradient=False)
+    du = u_noise - u
+    du_bar = Jac@dy[1:].reshape(-1, 1)
+    l = np.linalg.norm(du_bar.flatten() - du.flatten())
+    print(l)
+    return (du.flatten(), du_bar.flatten())
+        
 def test():
     """main script
     1. load the neural network
@@ -161,17 +155,29 @@ def test():
     4. add noise to the trajectory
     5. implement the trajectory
     """
-    model, env, traj_generator, data_processor = initialization()
-    yref, _ = traj_generator.get_traj()
+    # folder1s = ['newton_wo_shift', 'BFS', 'DFS', 'DFS2']
+    # folders = ['0.01_1.0_5.0', '0.01_1.0_5.0', '0.01_1.0_5.0', '0.01_5.0_5.0']
+    folder1s = ['newton_wo_shift', 'BFS2', 'BFS2', 'BFS2', 'BFS2', 'BFS2']
+    folders = ['0.01_1.0_5.0', '0.01_1.0_0.1', '0.01_1.0_0.5', '0.01_1.0_0.05', '0.01_1.0_1.0', '0.01_1.0_5.0']
+    models = []
+    l = []
+    du = []
+    
+    NN_PARAMS, traj_generator, data_processor = initialization()
+    for folder1, folder in zip(folder1s, folders):
+        path = os.path.join(root, 'data', folder1, folder, 'checkpoint_epoch_4000.pth')
+        models.append(load_the_model(NN_PARAMS, path))
 
     while 1:
         yref, _ = traj_generator.get_traj()
         yref_noise = fcs.add_noise(yref)
-        u_noise, _ = get_u(data_processor, model, yref_noise, is_gradient=True)
-        u, _ = get_u(data_processor, model, yref, is_gradient=True)
-        # yout_noise = run_sim(env, u_noise)
-        get_plots(yref=yref, yref_noise=yref_noise,
-                yout_noise=yref_noise, u=u, u_noise=u_noise)
-
+        du = []
+        for i in range(len(models)):
+            model = models[i]
+            # l.append(check_linearity(data_processor, model, yref, yref_noise))
+            du.append(check_linearity(data_processor, model, yref, yref_noise))
+        print('------------------------------')
+        get_plots(du)
+    
 if __name__ == '__main__':
     test()

@@ -14,8 +14,8 @@ def test():
     is_save = True
 
     root = fcs.get_parent_path(lvl=1)
-    folder = "DFS"
-    file = "0.01_1.0_5.0"
+    folder = "BFS2"
+    file = "0.01_1.0_0.05"
     path = os.path.join(root, 'data', folder, file)
     path_data = os.path.join(path, 'data')
     path_figure = os.path.join(path, 'figure')
