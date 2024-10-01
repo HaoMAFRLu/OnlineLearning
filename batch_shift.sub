@@ -1,0 +1,9 @@
+executable = /lustre/home/hma2/projects/OnlineLearning/myenv/bin/python
+arguments = -u test/cluster_newton.py --alpha $(arg1) --epsilon $(arg2) --eta $(arg3) --gamma $(arg4)
+error  = multi_dynamics_wo_kernel/task$(Process).err
+output = multi_dynamics_wo_kernel/task$(Process).out
+log    = multi_dynamics_wo_kernel/task$(Process).log
+request_gpus = 1
+request_memory = 131072
+request_cpus = 1
+queue arg1 arg2 arg3 arg4 from params_shift.txt

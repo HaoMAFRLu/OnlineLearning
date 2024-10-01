@@ -107,7 +107,7 @@ def save_variable(path, folder, subfolder):
 
 if __name__ == '__main__':
     root = fcs.get_parent_path(lvl=1)
-    folder1 = 'DFS2'
+    folder1 = 'switch_dynamics'
     path = os.path.join(root, 'data', folder1)
     folders = []
 

@@ -39,7 +39,8 @@ class OnlineLearning():
                  folder_name: str=None,
                  alpha: float=None,
                  epsilon: float=None,
-                 eta: float=None) -> None:
+                 eta: float=None,
+                 gamma: float=None) -> None:
         
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.root = fcs.get_parent_path(lvl=0)
@@ -51,6 +52,7 @@ class OnlineLearning():
         self.alpha = alpha
         self.epsilon = epsilon
         self.eta = eta
+        self.gamma = gamma
 
         parent = fcs.get_parent_path(lvl=1)
 
@@ -98,9 +100,12 @@ class OnlineLearning():
     def env_initialization(self, PARAMS: dict) -> environmnet:
         """Initialize the simulation environment
         """
-        self.envs = [None] * 2
-        self.envs[0] = self._env_initialization('control_system_medium', PARAMS)
-        self.envs[1] = self._env_initialization('control_system_large', PARAMS)
+        self.envs = [None] * 6
+        for i in range(6):
+            model = 'BeamSystem_' + str(i+1)
+            self.envs[i] = self._env_initialization(model, PARAMS)
+        # self.envs[0] = self._env_initialization('control_system_medium', PARAMS)
+        # self.envs[1] = self._env_initialization('control_system_large', PARAMS)
 
     def data_process_initialization(self, PARAMS: dict) -> None:
         """Initialize the data processor
@@ -145,7 +150,7 @@ class OnlineLearning():
         """
         self.online_optimizer = OnlineOptimizer(mode=self.mode, B=self.B, 
                                                 alpha=self.alpha, epsilon=self.epsilon,
-                                                eta=self.eta)
+                                                eta=self.eta, gamma=self.gamma)
 
     def initialization(self) -> torch.nn:
         """Initialize everything:
@@ -380,7 +385,28 @@ class OnlineLearning():
 
     def flip_coin(self):
         return random.random() < 0.9
-
+    
+    def discrepancy_dectection(self, env: environmnet) -> Tuple[Array, list]:
+        """
+        """
+        ydec, _ = self.traj.get_traj()
+        yout_list = []
+        for omega in self.online_optimizer.omega_list:
+            self.NN_update(self.model.NN, omega)
+            yout, _, _, _ = self._rum_sim(env, ydec)
+            yout_list.append(yout)
+        return ydec, yout_list
+    
+    @staticmethod
+    def get_model_idx(n: int, m: int) -> int:
+        """
+        """
+        while True:
+            num = random.randint(0, n-1)
+            if num != m:
+                break
+        return num
+    
     def _online_learning(self, nr_iterations: int=100, 
                          is_shift_dis: bool=False,
                          is_clear: bool=False,
@@ -394,7 +420,9 @@ class OnlineLearning():
         yref_marker, path_marker = self.marker_initialization()
 
         model_idx = 0
-        model_switch_idx = [2000, 4000, 6000, 8000, 10000, 12000]
+        model_switch_idx = [1000, 2000, 3000, 4000, 5000, 
+                            6000, 7000, 8000, 9000, 10000, 
+                            11000, 12000, 13000, 14000]
 
         for i in range(nr_iterations):
             tt = time.time()
@@ -410,11 +438,16 @@ class OnlineLearning():
             #     if is_reset is True:
             #         is_reset = False
             #         self.online_optimizer.import_omega(omega)
+   
+            if i in model_switch_idx:
+                model_idx = self.get_model_idx(len(self.envs), model_idx)
+
+                # self.online_optimizer.save_latest_omega()
+                # ydec, yout_list = self.discrepancy_dectection(self.envs[model_idx])
+                # self.online_optimizer.initialize_omega(ydec[0, 1:], yout_list)
+                # self.online_optimizer.clear_A()
 
             self.NN_update(self.model.NN, self.online_optimizer.omega)
-            
-            if i in model_switch_idx:
-                model_idx = 1 - model_idx
 
             if i%self.nr_marker_interval == 0:
                 self.run_marker_step(self.envs[model_idx], 

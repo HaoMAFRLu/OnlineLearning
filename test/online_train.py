@@ -16,7 +16,7 @@ def test():
 
     online_learning = OnlineLearning(mode='newton',
                                      root_name='test', 
-                                     alpha=0.1,epsilon=1.0,eta=0.05)
+                                     alpha=0.1,epsilon=1.0,eta=0.05, gamma=0.1)
     
     online_learning.online_learning(6000, 
                                     is_shift_dis=True,

@@ -18,9 +18,10 @@ def test():
     parser.add_argument('--alpha', type=float, required=True, help="Alpha")
     parser.add_argument('--epsilon', type=float, required=True, help="Epsilon")
     parser.add_argument('--eta', type=float, required=True, help="Eta")
+    parser.add_argument('--gamma', type=float, required=True, help="Gamma")
     args = parser.parse_args()
 
-    folder_name = str(args.alpha)+'_'+str(args.epsilon)+'_'+str(args.eta)
+    folder_name = str(args.alpha)+'_'+str(args.epsilon)+'_'+str(args.eta)+'_'+str(args.gamma)
 
     mode = 'newton'
     is_shift_dis = False
@@ -33,11 +34,11 @@ def test():
     root_name = mode + '_' + name1 + '_' + name2 + '_' + name3
 
     online_learning = OnlineLearning(mode='newton',
-                                     root_name='switch_dynamics',
+                                     root_name='multi_dynamics_wo_kernel',
                                      folder_name=folder_name,
-                                     alpha=args.alpha,epsilon=args.epsilon,eta=args.eta)
+                                     alpha=args.alpha,epsilon=args.epsilon,eta=args.eta,gamma=args.gamma)
     
-    online_learning.online_learning(14000, 
+    online_learning.online_learning(15000, 
                                     is_shift_dis=is_shift_dis, 
                                     is_clear=is_clear,
                                     is_reset=is_reset)

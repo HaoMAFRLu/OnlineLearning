@@ -22,7 +22,7 @@ def run_simulink_model():
     params_generator.get_params(PARAMS_LIST)
     # params_generator.PARAMS['SIM_PARAMS']["SimulationMode"] = "accelerator"
 
-    model_name = 'control_system_large'
+    model_name = 'BeamSystem_6'
     beam = BEAM(model_name, params_generator.PARAMS['SIM_PARAMS'])
     beam.initialization()
     u_in = get_random_input(5.5, 0.01)
@@ -33,6 +33,7 @@ def run_simulink_model():
         t1 = time.time()
         beam.run_sim()
         simOut = beam.get_output()
+        print(len(simOut[1]))
         t2 = time.time()
         tt = t2 - t1
         print(tt)
