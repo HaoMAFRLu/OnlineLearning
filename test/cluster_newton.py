@@ -34,7 +34,7 @@ def test():
     root_name = mode + '_' + name1 + '_' + name2 + '_' + name3
 
     online_learning = OnlineLearning(mode='newton',
-                                     root_name='multi_dynamics_wo_kernel',
+                                     root_name='multi_dynamics',
                                      folder_name=folder_name,
                                      alpha=args.alpha,epsilon=args.epsilon,eta=args.eta,gamma=args.gamma)
     

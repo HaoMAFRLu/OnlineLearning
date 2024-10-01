@@ -442,10 +442,10 @@ class OnlineLearning():
             if i in model_switch_idx:
                 model_idx = self.get_model_idx(len(self.envs), model_idx)
 
-                # self.online_optimizer.save_latest_omega()
-                # ydec, yout_list = self.discrepancy_dectection(self.envs[model_idx])
-                # self.online_optimizer.initialize_omega(ydec[0, 1:], yout_list)
-                # self.online_optimizer.clear_A()
+                self.online_optimizer.save_latest_omega()
+                ydec, yout_list = self.discrepancy_dectection(self.envs[model_idx])
+                self.online_optimizer.initialize_omega(ydec[0, 1:], yout_list)
+                self.online_optimizer.clear_A()
 
             self.NN_update(self.model.NN, self.online_optimizer.omega)
 
