@@ -63,7 +63,7 @@ def read_data(file):
 
 def save_variable_data(path, folder):
     subfolder = 'data'
-    variables = ['u', 'yref', 'yout', 'loss', 'gradient']
+    variables = ['u', 'yref', 'yout', 'loss', 'gradient', 'model_idx']
     is_exist = [1] * len(variables)
 
     path_folder = os.path.join(path, folder, subfolder)
@@ -107,7 +107,7 @@ def save_variable(path, folder, subfolder):
 
 if __name__ == '__main__':
     root = fcs.get_parent_path(lvl=1)
-    folder1 = 'switch_dynamics'
+    folder1 = 'multi_dynamics_wo_kernel'
     path = os.path.join(root, 'data', folder1)
     folders = []
 

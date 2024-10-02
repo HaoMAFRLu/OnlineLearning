@@ -142,10 +142,20 @@ class OnlineOptimizer():
         """
         return sum([x * y for x, y in zip(k, omega)])
 
+    @staticmethod
+    def normalize(lst):
+        total = sum(lst)
+        if total == 0:
+            normalized_lst = [0 for x in lst]
+        else:
+            normalized_lst = [x / total for x in lst]
+        return normalized_lst
+    
     def initialize_omega(self, ydec: Array, yout_list: list) -> None:
         """Initialize the parameters using kernel method
         """
         k = self.get_kernel(ydec, yout_list)
+        k = self.normalize(k)
         self.omega = self.get_omega(k, self.omega_list)
 
     def optimize(self, yref: Array, yout: Array) -> Array:

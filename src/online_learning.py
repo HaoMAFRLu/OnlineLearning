@@ -43,6 +43,7 @@ class OnlineLearning():
                  gamma: float=None) -> None:
         
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        print(torch.cuda.get_device_name(0))
         self.root = fcs.get_parent_path(lvl=0)
         self.nr_interval = nr_interval
         self.nr_shift_dis = nr_shift_dis
@@ -100,8 +101,9 @@ class OnlineLearning():
     def env_initialization(self, PARAMS: dict) -> environmnet:
         """Initialize the simulation environment
         """
-        self.envs = [None] * 6
-        for i in range(6):
+        nr_models = 6
+        self.envs = [None] * nr_models
+        for i in range(nr_models):
             model = 'BeamSystem_' + str(i+1)
             self.envs[i] = self._env_initialization(model, PARAMS)
         # self.envs[0] = self._env_initialization('control_system_medium', PARAMS)
@@ -417,12 +419,15 @@ class OnlineLearning():
         omega = self.extract_parameters(self.model.NN)
         self.online_optimizer.ini_matrix(len(omega))
         self.online_optimizer.import_omega(omega)
+        self.online_optimizer.save_latest_omega()
+
         yref_marker, path_marker = self.marker_initialization()
 
         model_idx = 0
-        model_switch_idx = [1000, 2000, 3000, 4000, 5000, 
-                            6000, 7000, 8000, 9000, 10000, 
-                            11000, 12000, 13000, 14000]
+        model_switch_idx = [1, 2, 3, 4, 5]
+        # model_switch_idx = [1000, 2000, 3000, 4000, 5000, 
+        #                     6000, 7000, 8000, 9000, 10000, 
+        #                     11000, 12000, 13000, 14000]
 
         for i in range(nr_iterations):
             tt = time.time()
@@ -468,8 +473,9 @@ class OnlineLearning():
                 Epoch=[str(i+1)+'/'+str(nr_iterations)],
                 Loss=[loss],
                 AvgLoss=[self.total_loss/(i+1)],
-                Ttotal = [ttotal],
-                Tsim = [tsim])
+                Ttotal=[ttotal],
+                Tsim=[tsim],
+                Model=[model_idx])
             
             if (i+1) % self.nr_data_interval == 0:
                 self.save_data(i,
