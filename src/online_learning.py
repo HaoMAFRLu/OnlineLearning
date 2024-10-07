@@ -101,13 +101,15 @@ class OnlineLearning():
     def env_initialization(self, PARAMS: dict) -> environmnet:
         """Initialize the simulation environment
         """
-        nr_models = 1
-        self.envs = [None] * nr_models
-        for i in range(nr_models):
-            model = 'BeamSystem_' + str(i+1)
-            self.envs[i] = self._env_initialization(model, PARAMS)
-        # self.envs[0] = self._env_initialization('control_system_medium', PARAMS)
-        # self.envs[1] = self._env_initialization('control_system_large', PARAMS)
+        # nr_models = 1
+        # self.envs = [None] * nr_models
+        # for i in range(nr_models):
+        #     model = 'BeamSystem_' + str(i+1)
+        #     self.envs[i] = self._env_initialization(model, PARAMS)
+
+        self.envs = [None] * 2
+        self.envs[0] = self._env_initialization('control_system_medium', PARAMS)
+        self.envs[1] = self._env_initialization('control_system_large', PARAMS)
 
     def data_process_initialization(self, PARAMS: dict) -> None:
         """Initialize the data processor
@@ -131,8 +133,8 @@ class OnlineLearning():
     def traj_initialization(self, distribution: str='original') -> None:
         """Create the class of reference trajectories
         """
-        self.traj = TRAJ(distribution)
-        # self.traj = TRAJ('v1')
+        # self.traj = TRAJ(distribution)
+        self.traj = TRAJ('v1')
 
     def load_dynamic_model(self) -> None:
         """Load the dynamic model of the underlying system,
@@ -428,13 +430,14 @@ class OnlineLearning():
         # model_switch_idx = [1000, 2000, 3000, 4000, 5000, 
         #                     6000, 7000, 8000, 9000, 10000, 
         #                     11000, 12000, 13000, 14000]
-
+        model_switch_idx = [2000, 4000, 6000, 8000, 10000, 12000]
+        
         for i in range(nr_iterations):
             tt = time.time()
             
-            if (is_shift_dis is True) and (i > self.nr_shift_dis):
-                is_shift_dis = False
-                yref_marker = self.shift_distribution()
+            # if (is_shift_dis is True) and (i > self.nr_shift_dis):
+            #     is_shift_dis = False
+            #     yref_marker = self.shift_distribution()
                 
             #     if is_clear is True:
             #         is_clear = False
@@ -444,7 +447,8 @@ class OnlineLearning():
             #         is_reset = False
             #         self.online_optimizer.import_omega(omega)
    
-            # if i in model_switch_idx:
+            if i in model_switch_idx:
+                model_idx = 1 - model_idx
             #     model_idx = self.get_model_idx(len(self.envs), model_idx)
 
             #     self.online_optimizer.save_latest_omega()
@@ -455,13 +459,13 @@ class OnlineLearning():
             self.NN_update(self.model.NN, self.online_optimizer.omega)
 
             if i%self.nr_marker_interval == 0:
-                self.run_marker_step(self.envs[0], 
+                self.run_marker_step(self.envs[model_idx], 
                                      yref_marker, path_marker)
             
             yref, _ = self.traj.get_traj()
    
             t1 = time.time()
-            yout, u, par_pi_par_omega, loss = self._rum_sim(self.envs[0], 
+            yout, u, par_pi_par_omega, loss = self._rum_sim(self.envs[model_idx], 
                                                             yref, is_gradient=True)
             tsim = time.time() - t1
             self.online_optimizer.import_par_pi_par_omega(par_pi_par_omega)

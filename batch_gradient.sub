@@ -1,8 +1,8 @@
 executable = /lustre/home/hma2/projects/OnlineLearning/myenv/bin/python
 arguments = -u test/cluster_gradient.py --eta $(arg1)
-error  = distribution_shift/task$(Process).err
-output = distribution_shift/task$(Process).out
-log    = distribution_shift/task$(Process).log
+error  = switch_dynamics/task$(Process).err
+output = switch_dynamics/task$(Process).out
+log    = switch_dynamics/task$(Process).log
 request_gpus = 1
 request_memory = 65536
 request_cpus = 1
