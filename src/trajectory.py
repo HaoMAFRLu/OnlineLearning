@@ -115,8 +115,8 @@ class TRAJ():
         """
         """
         if self.distribution == 'v1':
-            # self.nr_points = random.randint(1, 8)
-            self.nr_points = random.randint(5, 8)
+            self.nr_points = random.randint(1, 8)
+            # self.nr_points = random.randint(5, 8)
 
         t = self.get_t()
         y = self.get_y()

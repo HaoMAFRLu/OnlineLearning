@@ -14,8 +14,8 @@ def test():
     is_save = True
 
     root = fcs.get_parent_path(lvl=1)
-    folder = "multi_dynamics"
-    file = "0.1_5.0_25.0_0.5"
+    folder = "distribution_shift"
+    file = "0.01"
     path = os.path.join(root, 'data', folder, file)
     path_data = os.path.join(path, 'data')
     path_figure = os.path.join(path, 'figure')

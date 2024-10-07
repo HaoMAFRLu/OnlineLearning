@@ -18,7 +18,7 @@ class Attacker():
     def __init__(self, delta: float, length: int, 
                  B: Array2D,
                  alpha: float, epsilon: float, 
-                 rolling: int=1) -> None:
+                 rolling: int=20) -> None:
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.nr_iteration = 0
         self.delta = delta
@@ -107,11 +107,11 @@ class Attacker():
         """
         self._B = self.update_model()
         self.update_A(self._B)
-        self.eta = 0.1
+        self.eta = 25.0
 
         self.gradient = self.get_gradient(self.L, self.yref, self.yout)        
-        # self.dy = self.eta*torch.matmul(torch.linalg.inv(self.A), self.gradient)
-        self.dy = self.eta*self.gradient
+        self.dy = self.eta*torch.matmul(torch.linalg.inv(self.A), self.gradient)
+        # self.dy = self.eta*self.gradient
         self.update_y()
 
     # def _optimize_gradient(self) -> None:
