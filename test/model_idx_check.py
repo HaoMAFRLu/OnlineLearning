@@ -46,7 +46,7 @@ def remove_consecutive_duplicates(lst):
 if __name__ == '__main__':
     root = fcs.get_parent_path(lvl=1)
     folder1 = 'multi_dynamics'
-    folder = '0.01_1.0_2.5_0.01'
+    folder = '0.1_5.0_25.0_0.5'
     path = os.path.join(root, 'data', folder1, folder)
     
     model_idx = read_model_idx(path)

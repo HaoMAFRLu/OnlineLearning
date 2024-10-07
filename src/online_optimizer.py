@@ -110,8 +110,8 @@ class OnlineOptimizer():
     def _optimize_gradient(self) -> None:
         """Optimize the parameters using gradient descent method
         """
-        B = self.update_model()
-        self.L = self.get_L(B, self.par_pi_par_omega)
+        self._B = self.update_model()
+        self.L = self.get_L(self._B, self.par_pi_par_omega)
         self.gradient = self.get_gradient(self.L, self.yref, self.yout)
         self.eta = self.step_size.get_eta(self.nr_iteration)
         self.omega -= self.eta*self.gradient

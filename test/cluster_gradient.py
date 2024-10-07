@@ -21,11 +21,11 @@ def test():
     folder_name = str(args.eta)
 
     online_learning = OnlineLearning(mode='gradient',
-                                     root_name='gradient_wo_shift',
+                                     root_name='distribution_shift',
                                      folder_name=folder_name,
                                      alpha=1.0,epsilon=1.0,eta=args.eta)
     
-    online_learning.online_learning(6000, is_shift_dis=False)
+    online_learning.online_learning(6000, is_shift_dis=True)
 
 if __name__ == '__main__':
     test()
