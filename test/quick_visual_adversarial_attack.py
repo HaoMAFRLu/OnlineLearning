@@ -15,7 +15,7 @@ def test():
 
     root = fcs.get_parent_path(lvl=1)
     folder = "test"
-    file = "20241007_133930"
+    file = "20241007_080716"
     path = os.path.join(root, 'data', folder, file)
     path_data = os.path.join(path, 'data')
     path_figure = os.path.join(path, 'figure')

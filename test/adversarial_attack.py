@@ -13,12 +13,15 @@ import utils as fcs
 def test():
     root = fcs.get_parent_path(lvl=1)
     path = os.path.join(root, 'data', 
-                        'newton_w_shift_wo_clear_wo_reset_padding',
-                        '0.01_1.0_5.0', 'checkpoint_epoch_6000.pth')
+                        'gradient_distribution_shift',
+                        '0.01', 'checkpoint_epoch_6000.pth')
     random.seed(9527)
     torch.manual_seed(9527)
 
-    online_learning = OnlineAttack()
+    online_learning = OnlineAttack(
+        root_name='adversarial_attack',
+        folder_name='gradient_model_newton_gradient'
+    )
     online_learning.load_NN_model(path)
     online_learning.online_adversarial_attack(6000)
 

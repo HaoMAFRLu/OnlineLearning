@@ -110,8 +110,8 @@ class Attacker():
         self.eta = 25.0
 
         self.gradient = self.get_gradient(self.L, self.yref, self.yout)        
-        self.dy = self.eta*torch.matmul(torch.linalg.inv(self.A), self.gradient)
-        # self.dy = self.eta*self.gradient
+        # self.dy = self.eta*torch.matmul(torch.linalg.inv(self.A), self.gradient)
+        self.dy = 0.01*self.gradient
         self.update_y()
 
     # def _optimize_gradient(self) -> None:
