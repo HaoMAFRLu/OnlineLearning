@@ -17,7 +17,7 @@ class MNISTOptimizer():
     B: identified linear model
     """
     def __init__(self, mode: str, alpha: float, epsilon: float, 
-                 eta: float, gamma: float, rolling: int=1) -> None:
+                 eta: float, gamma: float, rolling: int=50) -> None:
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.mode = mode
         self.alpha = alpha

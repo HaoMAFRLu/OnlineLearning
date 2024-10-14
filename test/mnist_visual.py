@@ -148,8 +148,8 @@ def test():
     2. initialize the data generator
     3. test the accuracy
     """
-    folder1 = 'mnist_wo_shift'
-    nr_to_print = 144
+    folder1 = 'mnist_wo_shift2'
+    nr_to_print = 100
     folders = []
     acc_list = []
     iter_list = []

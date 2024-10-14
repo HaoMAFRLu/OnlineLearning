@@ -21,7 +21,7 @@ def test():
     folder_name = str(args.alpha)+'_'+str(args.epsilon)+'_'+str(args.eta)
 
     mode = 'newton'
-    is_shift_dis = False
+    is_shift_dis = True
     is_clear     = False
     is_reset     = False
 
@@ -31,11 +31,11 @@ def test():
     root_name = mode + '_' + name1 + '_' + name2 + '_' + name3
 
     online_learning = MNISTOnlineLearning(mode='newton',
-                                     root_name='mnist_wo_shift',
+                                     root_name='mnist_w_shift',
                                      folder_name=folder_name,
                                      alpha=args.alpha,epsilon=args.epsilon,eta=args.eta)
     
-    online_learning.online_learning(10000, 
+    online_learning.online_learning(14000, 
                                     is_shift_dis=is_shift_dis, 
                                     is_clear=is_clear,
                                     is_reset=is_reset)

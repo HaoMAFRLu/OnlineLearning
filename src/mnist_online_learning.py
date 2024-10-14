@@ -284,10 +284,6 @@ class MNISTOnlineLearning():
         self.mnist_optimizer.ini_matrix(len(omega))
         self.mnist_optimizer.import_omega(omega)
 
-        # model_switch_idx = [1, 2, 3, 4, 5]
-        # model_switch_idx = [1000, 2000, 3000, 4000, 5000, 
-        #                     6000, 7000, 8000, 9000, 10000, 
-        #                     11000, 12000, 13000, 14000]
         dis_switch_idx = [2000, 4000, 6000, 8000, 10000, 12000]
         total_loss = 0.0
         nr_acc = 0
@@ -351,7 +347,7 @@ class MNISTOnlineLearning():
                                data=data,
                                yref=yref,
                                yout=yout,
-                               gradient=self.mnist_optimizer.gradient)
+                               distribution=self.data_generator.distribution)
                 
             if (i+1) % self.nr_interval == 0:
                 self.save_checkpoint(i+1)
