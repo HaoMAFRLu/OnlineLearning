@@ -6,15 +6,19 @@ import torch
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from collections import Counter
+import os, sys
 
 random.seed(9527)
 
 from mytypes import Array, Array2D
-
+import utils as fcs
 class MNISTGenerator():
     """
     """
-    def __init__(self, device) -> None:
+    def __init__(self, mode) -> None:
+        self.mode = mode
+        root = fcs.get_parent_path(lvl=1)
+        self.path = os.path.join(root, 'data')
         self.load_data()
         self.distribution_initialization()
 
@@ -24,13 +28,18 @@ class MNISTGenerator():
             transforms.Normalize((0.1307,), (0.3081,))
         ])
 
-        self.train_dataset = datasets.MNIST(
-            root='./data',
-            train=True,
-            download=True,
-            transform=transform
-        )
+        if self.mode == 'train':
+            is_train = True
+        elif self.mode == 'test':
+            is_train = False
 
+        self.dataset = datasets.MNIST(
+                root=self.path,
+                train=is_train,
+                download=False,
+                transform=transform
+            )
+        
     def distribution_initialization(self):
         self.update_distribution([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
     
@@ -38,10 +47,10 @@ class MNISTGenerator():
         distribution = np.array(dis)
         self.distribution = distribution / distribution.sum()
         self.batch_size = batch_size
-        labels = self.get_label(self.train_dataset)
+        labels = self.get_label(self.dataset)
         weights = self.get_weights(labels, self.distribution)
         sampler = self.get_sampler(weights)
-        self.dataloader = self.get_dataloader(self.batch_size, self.train_dataset, sampler)
+        self.dataloader = self.get_dataloader(self.batch_size, self.dataset, sampler)
 
     def get_sampler(self, weights):
         return torch.utils.data.WeightedRandomSampler(
@@ -51,11 +60,15 @@ class MNISTGenerator():
         )
 
     def get_dataloader(self, batch_size, dataset, sampler):
+        if self.mode == 'train':
+            _batch_size = batch_size
+        elif self.mode == 'test':
+            _batch_size = 10000        
         return DataLoader(
-            dataset=dataset,
-            batch_size=batch_size,
-            sampler=sampler
-        )
+                dataset=dataset,
+                batch_size=_batch_size,
+                sampler=sampler
+               )
 
     def get_weights(self, labels, distribution):
         label_counts = Counter(labels)
@@ -65,25 +78,6 @@ class MNISTGenerator():
 
     def get_label(self, dataset):
         return dataset.targets.numpy()
-
-        # test_dataset = datasets.MNIST(
-        #     root='./data',
-        #     train=False,
-        #     download=True,
-        #     transform=transform
-        # )
-
-        # train_loader = DataLoader(
-        #     dataset=train_dataset,
-        #     batch_size=64,
-        #     shuffle=True
-        # )
-
-        # test_loader = DataLoader(
-        #     dataset=test_dataset,
-        #     batch_size=1000,
-        #     shuffle=False
-        # )
 
     def get_samples(self):
         data_iter = iter(self.dataloader)

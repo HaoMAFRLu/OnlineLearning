@@ -6,15 +6,14 @@
 import torch
 from pathlib import Path
 import os, sys
-import importlib
 from typing import Tuple, List
 import pickle
 import numpy as np
-import numba as nb
 from datetime import datetime
 import time
 from scipy.signal import butter, filtfilt, freqz
 import random
+from scipy.special import softmax
 
 random.seed(10086)
 
@@ -85,7 +84,7 @@ class MNISTOnlineLearning():
     def data_generator_initialization(self) -> None:
         """Create the generator for the images and labels
         """
-        self.data_generator = MNISTGenerator(self.device)
+        self.data_generator = MNISTGenerator('train')
     
     def mnist_optimizer_initialization(self) -> None:
         """Initialize the kalman filter
@@ -216,14 +215,6 @@ class MNISTOnlineLearning():
             par_pi_par_omega = None
         return self.tensor2np(yout), par_pi_par_omega
         
-    @staticmethod
-    def softmax(z):
-        """
-        """
-        exp_z = np.exp(z)
-        sum_exp_z = np.sum(exp_z)
-        return exp_z / sum_exp_z
-
     def online_learning(self, nr_iterations: int=100, 
                         is_shift_dis: bool=False,
                         is_clear: bool=False,
@@ -335,7 +326,7 @@ class MNISTOnlineLearning():
 
             t1 = time.time()
             yout, par_pi_par_omega = self.classification(self.model, data, is_gradient=True)
-            ysoftmax = self.softmax(yout)
+            ysoftmax = softmax(yout)
             tsim = time.time() - t1
             self.mnist_optimizer.import_par_pi_par_omega(par_pi_par_omega)
             self.mnist_optimizer.optimize(yref, ysoftmax)

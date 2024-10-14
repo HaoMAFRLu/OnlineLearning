@@ -31,7 +31,7 @@ def test():
     root_name = mode + '_' + name1 + '_' + name2 + '_' + name3
 
     online_learning = MNISTOnlineLearning(mode='newton',
-                                     root_name='MNIST',
+                                     root_name='mnist_wo_shift',
                                      folder_name=folder_name,
                                      alpha=args.alpha,epsilon=args.epsilon,eta=args.eta)
     
