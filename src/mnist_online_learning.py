@@ -29,7 +29,7 @@ class MNISTOnlineLearning():
     """Classes for online learning
     """
     def __init__(self, mode: str='gradient',
-                 nr_interval: int=1000,
+                 nr_interval: int=5000,
                  nr_shift_dis: int=3000,
                  nr_data_interval: int=1,
                  nr_marker_interval: int=20,
@@ -284,7 +284,7 @@ class MNISTOnlineLearning():
         self.mnist_optimizer.ini_matrix(len(omega))
         self.mnist_optimizer.import_omega(omega)
 
-        dis_switch_idx = [2000, 4000, 6000, 8000, 10000, 12000]
+        dis_switch_idx = [5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000]
         total_loss = 0.0
         nr_acc = 0
 

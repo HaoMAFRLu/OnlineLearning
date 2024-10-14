@@ -35,7 +35,7 @@ def test():
                                      folder_name=folder_name,
                                      alpha=args.alpha,epsilon=args.epsilon,eta=args.eta)
     
-    online_learning.online_learning(14000, 
+    online_learning.online_learning(50000, 
                                     is_shift_dis=is_shift_dis, 
                                     is_clear=is_clear,
                                     is_reset=is_reset)
