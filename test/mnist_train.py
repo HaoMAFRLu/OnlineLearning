@@ -16,7 +16,7 @@ def test():
 
     online_learning = MNISTOnlineLearning(mode='newton',
                                          root_name='test', 
-                                         alpha=0.01,epsilon=1.0,eta=0.5,gamma=0.1)
+                                         alpha=5.0,epsilon=0.01,eta=0.1,gamma=0.1)
     
     online_learning.online_learning(6000, 
                                     is_shift_dis=False,
