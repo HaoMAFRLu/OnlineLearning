@@ -291,7 +291,8 @@ class MNISTOnlineLearning():
         dis_switch_idx = [5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000]
         total_loss = 0.0
         nr_acc = 0
-
+        self.shift_distribution()
+        
         for i in range(nr_iterations):
             tt = time.time()
             

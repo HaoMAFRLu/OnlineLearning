@@ -168,7 +168,7 @@ def test():
     1. load the data
     2. calculate the accuracy
     """
-    folder1 = 'mnist_w_shift'
+    folder1 = 'mnist_w_shift2'
     folders = []
     
     if len(folders) == 0:
@@ -179,7 +179,7 @@ def test():
         path_data = os.path.join(path, 'data')
         _, preds, labels, distributions = get_data(path_data)
         # print(distributions)
-        acc, acc_500 = get_accuracy(preds, labels)
+        acc, acc_500 = get_accuracy(preds, labels, l=1000)
         print(acc_500)
         get_plot(path, acc)
 
