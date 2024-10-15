@@ -16,6 +16,7 @@ import random
 from scipy.special import softmax
 
 random.seed(10086)
+np.random.seed(10086)
 
 import utils as fcs
 from mytypes import Array, Array2D, Array3D
@@ -229,8 +230,11 @@ class MNISTOnlineLearning():
     def get_distribution(self) -> list:
         """
         """
-        random_numbers = np.random.dirichlet(np.ones(10))
-        return list(random_numbers)
+        # random_numbers = np.random.dirichlet(np.ones(10))
+        # return list(random_numbers)
+        alpha = np.full(10, 0.5)
+        return np.random.dirichlet(alpha)
+
 
     def shift_distribution(self) -> None:
         """change the distribution

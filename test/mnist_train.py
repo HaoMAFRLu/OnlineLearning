@@ -19,7 +19,7 @@ def test():
                                          alpha=5.0,epsilon=0.01,eta=0.1,gamma=0.1)
     
     online_learning.online_learning(6000, 
-                                    is_shift_dis=False,
+                                    is_shift_dis=True,
                                     is_clear=False,
                                     is_reset=False)
 
