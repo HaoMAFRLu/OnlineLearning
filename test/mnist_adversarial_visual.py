@@ -112,32 +112,44 @@ def list_files_os_listdir(directory):
 def _get_data(file):
     with open(file, 'rb') as f:
         data = pickle.load(f)
-    return data['data'], data['yout'], data['yref'], data['distribution']
+    return data['image'], data['dy']
 
 def get_label(y):
     return np.argmax(y)
+
+def get_unflatten_tensor(y):
+    """
+    """
+    if y.numel() != 784:
+        raise ValueError("Dim is wrong!")
+    image = y.view(28, 28)
+    image = image.t()
+    image = image.unsqueeze(0).unsqueeze(0)
+    return image
 
 def get_data(path):
     images = []
     preds = []
     labels =[]
+    dys = []
     distributions = []
     files = list_files_os_listdir(path)
     for i in range(len(files)):
         path_data = os.path.join(path, str(i))
-        image, yout, yref, dis = _get_data(path_data)
-        pred = get_label(softmax(yout))
-        label = get_label(yref)
+        image, dy = _get_data(path_data)
+        # pred = get_label(softmax(yout))
+        # label = get_label(yref)
         images.append(image)
-        preds.append(pred)
-        labels.append(label)
-        if i == 0:
-            distributions.append(dis)
-        else:
-            if np.any(dis != distributions[-1]):
-                distributions.append(dis)
+        dys.append(get_unflatten_tensor(dy))
+        # preds.append(pred)
+        # labels.append(label)
+        # if i == 0:
+        #     distributions.append(dis)
+        # else:
+        #     if np.any(dis != distributions[-1]):
+        #         distributions.append(dis)
 
-    return images, preds, labels, distributions
+    return images, dys
 
 def get_accuracy(preds, labels, l=500):
     nr = len(preds)
@@ -163,13 +175,29 @@ def get_plot(path, acc):
     plt.savefig(path_save)
     plt.show()
 
+def _get_plot(img, path):
+    img = img * 0.3081 + 0.1307 
+    np_img = img.to('cpu').detach().numpy().squeeze()
+    
+    plt.imshow(np_img, cmap='gray')
+    plt.axis('off')
+    plt.savefig(path)
+    # plt.show()
+
+def get_plots(images, path):
+    nr = len(images)
+    for i in range(nr):
+        if i%20 == 0:
+            path_fig = os.path.join(path, str(i)+'.png')
+            _get_plot(images[i], path_fig)
+
 def test():
     """main script
     1. load the data
     2. calculate the accuracy
     """
-    folder1 = 'mnist_w_shift3'
-    folders = []
+    folder1 = 'mnist_adversarial_attack'
+    folders = ['test']
     
     if len(folders) == 0:
         folders = get_all_folders(folder1)
@@ -177,11 +205,14 @@ def test():
     for folder in folders:
         path = os.path.join(root, 'data', folder1, folder)
         path_data = os.path.join(path, 'data')
-        _, preds, labels, distributions = get_data(path_data)
-        # print(distributions)
-        acc, acc_500 = get_accuracy(preds, labels, l=1000)
-        print(acc_500)
-        get_plot(path, acc)
+        images, dys = get_data(path_data)
+
+        path_fig = os.path.join(path, 'figure')
+        fcs.mkdir(path_fig)
+        get_plots(images, path_fig)
+        path_fig = os.path.join(path, 'dy')
+        fcs.mkdir(path_fig)
+        get_plots(dys, path_fig)
 
 
 if __name__ == '__main__':

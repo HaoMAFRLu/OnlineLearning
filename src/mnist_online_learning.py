@@ -207,11 +207,11 @@ class MNISTOnlineLearning():
         """
         """
         if is_gradient is True:
-            self.model.NN.train()
+            model.NN.train()
             yout = model.NN(data)
             par_pi_par_omega = self.get_par_pi_par_omega(self.model.NN, yout)
         else:
-            self.model.NN.eval()
+            model.NN.eval()
             yout = model.NN(data)
             par_pi_par_omega = None
         return self.tensor2np(yout), par_pi_par_omega
@@ -292,7 +292,7 @@ class MNISTOnlineLearning():
         total_loss = 0.0
         nr_acc = 0
         self.shift_distribution()
-        
+
         for i in range(nr_iterations):
             tt = time.time()
             

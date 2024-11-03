@@ -14,7 +14,7 @@ def test():
     random.seed(9527)
     torch.manual_seed(9527)
 
-    online_learning = MNISTOnlineLearning(mode='newton',
+    online_learning = MNISTOnlineLearning(mode='gradient',
                                          root_name='test', 
                                          alpha=5.0,epsilon=0.01,eta=0.1,gamma=0.1)
     
